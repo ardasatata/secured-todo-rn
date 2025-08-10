@@ -3,6 +3,7 @@ import {Todo} from '../types/Todo';
 
 const TODOS_KEY = '@todos';
 const AUTH_SETUP_KEY = '@auth_setup';
+const SCREENSHOT_DETECTION_KEY = '@screenshot_detection';
 
 export const saveTodos = async (todos: Todo[]): Promise<void> => {
   try {
@@ -41,6 +42,26 @@ export const loadAuthSetup = async (): Promise<boolean> => {
     return jsonValue != null ? JSON.parse(jsonValue) : true;
   } catch (e) {
     console.error('Error loading auth setup status:', e);
+    // Default to true on error to maintain security
+    return true;
+  }
+};
+
+export const saveScreenshotDetection = async (isEnabled: boolean): Promise<void> => {
+  try {
+    await AsyncStorage.setItem(SCREENSHOT_DETECTION_KEY, JSON.stringify(isEnabled));
+  } catch (e) {
+    console.error('Error saving screenshot detection status:', e);
+  }
+};
+
+export const loadScreenshotDetection = async (): Promise<boolean> => {
+  try {
+    const jsonValue = await AsyncStorage.getItem(SCREENSHOT_DETECTION_KEY);
+    // Default to true (screenshot detection enabled) when no setting is stored
+    return jsonValue != null ? JSON.parse(jsonValue) : true;
+  } catch (e) {
+    console.error('Error loading screenshot detection status:', e);
     // Default to true on error to maintain security
     return true;
   }

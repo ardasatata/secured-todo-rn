@@ -7,14 +7,20 @@ import {
   SafeAreaView,
   Switch,
   Alert,
+  ScrollView,
 } from 'react-native';
 import * as LocalAuthentication from 'expo-local-authentication';
-import {saveAuthSetup, loadAuthSetup} from '../utils/storage';
+import {saveAuthSetup, loadAuthSetup, saveScreenshotDetection, loadScreenshotDetection} from '../utils/storage';
+import {useScreenshotDetection} from '../hooks/useScreenshotDetection';
 
 export default function SettingsScreen() {
   const [biometricEnabled, setBiometricEnabled] = useState(false);
   const [biometricType, setBiometricType] = useState<string>('None');
   const [hasHardware, setHasHardware] = useState(false);
+  const [screenshotDetectionEnabled, setScreenshotDetectionEnabled] = useState(false);
+
+  // Screenshot detection hook
+  const { triggerTestScreenshot } = useScreenshotDetection();
 
   useEffect(() => {
     initializeSettings();
@@ -25,6 +31,10 @@ export default function SettingsScreen() {
       // Check current auth setup status
       const authEnabled = await loadAuthSetup();
       setBiometricEnabled(authEnabled);
+
+      // Check current screenshot detection status
+      const screenshotEnabled = await loadScreenshotDetection();
+      setScreenshotDetectionEnabled(screenshotEnabled);
 
       // Check device capabilities
       const hardwareAvailable = await LocalAuthentication.hasHardwareAsync();
@@ -52,60 +62,91 @@ export default function SettingsScreen() {
     const currentState = biometricEnabled;
 
     if (value) {
-      // Enable biometric authentication
+      // Enable biometric authentication - no auth required
       if (!hasHardware) {
         Alert.alert('Not Available', 'Biometric authentication is not available on this device');
         return;
       }
 
-      const isEnrolled = await LocalAuthentication.isEnrolledAsync();
-      if (!isEnrolled) {
+      const supportedTypes = await LocalAuthentication.supportedAuthenticationTypesAsync();
+      if (supportedTypes.length === 0) {
         Alert.alert(
           'Setup Required',
-          'No biometric data found. Please set up biometrics in device settings first.'
+          'No authentication methods available. Please set up device security first.'
         );
         return;
       }
 
       try {
-        const result = await LocalAuthentication.authenticateAsync({
-          promptMessage: 'Authenticate to enable biometric security',
-        });
-
-        if (result.success) {
-          await saveAuthSetup(true);
-          setBiometricEnabled(true);
-          Alert.alert('Success', 'Biometric authentication enabled!');
-        } else {
-          // Authentication failed or cancelled, revert switch state
-          setBiometricEnabled(currentState);
-        }
+        await saveAuthSetup(true);
+        setBiometricEnabled(true);
+        Alert.alert('Success', 'Authentication enabled!');
       } catch (error) {
-        console.error('Error enabling biometric:', error);
-        Alert.alert('Error', 'Failed to enable biometric authentication');
-        // Revert switch state on error
+        console.error('Error enabling authentication:', error);
+        Alert.alert('Error', 'Failed to enable authentication');
         setBiometricEnabled(currentState);
       }
     } else {
-      // Disable biometric authentication
+      // Disable biometric authentication - require authentication
       try {
         const result = await LocalAuthentication.authenticateAsync({
-          promptMessage: 'Authenticate to disable biometric security',
+          promptMessage: 'Authenticate to disable security',
+          disableDeviceFallback: false,
         });
 
         if (result.success) {
           await saveAuthSetup(false);
           setBiometricEnabled(false);
-          Alert.alert('Success', 'Biometric authentication disabled');
+          Alert.alert('Success', 'Authentication disabled');
         } else {
           // Authentication failed or cancelled, revert switch state
           setBiometricEnabled(currentState);
         }
       } catch (error) {
-        console.error('Error disabling biometric:', error);
-        Alert.alert('Error', 'Failed to disable biometric authentication');
+        console.error('Error disabling authentication:', error);
+        Alert.alert('Error', 'Failed to disable authentication');
         // Revert switch state on error
         setBiometricEnabled(currentState);
+      }
+    }
+  };
+
+  const toggleScreenshotDetection = async (value: boolean) => {
+    // Store the current state in case we need to revert
+    const currentState = screenshotDetectionEnabled;
+
+    if (value) {
+      // Enable screenshot detection - no auth required
+      try {
+        await saveScreenshotDetection(true);
+        setScreenshotDetectionEnabled(true);
+        Alert.alert('Success', 'Screenshot detection enabled!');
+      } catch (error) {
+        console.error('Error enabling screenshot detection:', error);
+        Alert.alert('Error', 'Failed to enable screenshot detection');
+        setScreenshotDetectionEnabled(currentState);
+      }
+    } else {
+      // Disable screenshot detection - require authentication
+      try {
+        const result = await LocalAuthentication.authenticateAsync({
+          promptMessage: 'Authenticate to disable screenshot detection',
+          disableDeviceFallback: false,
+        });
+
+        if (result.success) {
+          await saveScreenshotDetection(false);
+          setScreenshotDetectionEnabled(false);
+          Alert.alert('Success', 'Screenshot detection disabled!');
+        } else {
+          // Authentication failed or cancelled, revert switch state
+          setScreenshotDetectionEnabled(currentState);
+        }
+      } catch (error) {
+        console.error('Error disabling screenshot detection:', error);
+        Alert.alert('Error', 'Failed to disable screenshot detection');
+        // Revert switch state on error
+        setScreenshotDetectionEnabled(currentState);
       }
     }
   };
@@ -113,7 +154,7 @@ export default function SettingsScreen() {
   const resetSettings = async () => {
     Alert.alert(
       'Reset Settings',
-      'This will disable biometric authentication and reset all settings. Continue?',
+      'This will disable biometric authentication, screenshot detection, and reset all settings. Continue?',
       [
         {text: 'Cancel', style: 'cancel'},
         {
@@ -121,7 +162,9 @@ export default function SettingsScreen() {
           style: 'destructive',
           onPress: async () => {
             await saveAuthSetup(false);
+            await saveScreenshotDetection(false);
             setBiometricEnabled(false);
+            setScreenshotDetectionEnabled(false);
             Alert.alert('Reset Complete', 'All settings have been reset');
           },
         },
@@ -131,8 +174,7 @@ export default function SettingsScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-
-      <View style={styles.content}>
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
         {/* Biometric Authentication Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Security</Text>
@@ -153,6 +195,19 @@ export default function SettingsScreen() {
 
           <View style={styles.settingItem}>
             <View style={styles.settingInfo}>
+              <Text style={styles.settingLabel}>Screenshot Detection</Text>
+              <Text style={styles.settingDescription}>
+                Alert when screenshots are taken
+              </Text>
+            </View>
+            <Switch
+              value={screenshotDetectionEnabled}
+              onValueChange={toggleScreenshotDetection}
+            />
+          </View>
+
+          <View style={styles.settingItem}>
+            <View style={styles.settingInfo}>
               <Text style={styles.settingLabel}>Authentication Type</Text>
               <Text style={styles.settingDescription}>{biometricType}</Text>
             </View>
@@ -162,6 +217,15 @@ export default function SettingsScreen() {
         {/* General Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>General</Text>
+
+          <TouchableOpacity style={styles.settingItem} onPress={() => triggerTestScreenshot()}>
+            <View style={styles.settingInfo}>
+              <Text style={styles.settingLabel}>Test Screenshot Alert</Text>
+              <Text style={styles.settingDescription}>
+                Test the screenshot detection functionality
+              </Text>
+            </View>
+          </TouchableOpacity>
 
           <TouchableOpacity style={styles.settingItem} onPress={resetSettings}>
             <View style={styles.settingInfo}>
@@ -191,7 +255,7 @@ export default function SettingsScreen() {
             </View>
           </View>
         </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -201,9 +265,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5',
   },
-  content: {
+  scrollView: {
     flex: 1,
+  },
+  content: {
     padding: 20,
+    paddingBottom: 40,
   },
   section: {
     marginBottom: 30,
