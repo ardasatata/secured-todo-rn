@@ -37,11 +37,13 @@ export default function AuthSetupScreen({onAuthSetup}: Props) {
         return;
       }
 
-      const isEnrolled = await LocalAuthentication.isEnrolledAsync();
-      if (!isEnrolled) {
+      // Check what authentication methods are available
+      const supportedAuthTypes = await LocalAuthentication.supportedAuthenticationTypesAsync();
+
+      if (supportedAuthTypes.length === 0) {
         Alert.alert(
           'Setup Required',
-          'No biometric data enrolled. Please set up biometrics in your device settings first, or continue in demo mode.',
+          'No authentication methods available on this device. Please set up device security first, or continue in demo mode.',
           [
             {text: 'Cancel', style: 'cancel'},
             {text: 'Demo Mode', onPress: async () => {
@@ -55,13 +57,14 @@ export default function AuthSetupScreen({onAuthSetup}: Props) {
       }
 
       const result = await LocalAuthentication.authenticateAsync({
-        promptMessage: 'Setup biometric authentication',
+        promptMessage: 'Setup authentication for secure access',
         fallbackLabel: 'Use Passcode',
+        disableDeviceFallback: false, // Allow device credentials as fallback
       });
 
       if (result.success) {
         await saveAuthSetup(true);
-        Alert.alert('Success', 'Biometric authentication has been set up successfully!', [
+        Alert.alert('Success', 'Authentication has been set up successfully!', [
           {text: 'OK', onPress: onAuthSetup},
         ]);
       } else {

@@ -35,22 +35,26 @@ export const useAuthentication = () => {
         return true; // Allow access in demo mode
       }
 
-      // Check if user has enrolled biometric data
+      // Check what authentication methods are available
+      const supportedAuthTypes = await LocalAuthentication.supportedAuthenticationTypesAsync();
       const isEnrolled = await LocalAuthentication.isEnrolledAsync();
-      if (!isEnrolled) {
+      
+      // If no authentication methods available at all, fail
+      if (supportedAuthTypes.length === 0) {
         Alert.alert(
-          'No Biometrics',
-          'No biometric data found. Please set up biometrics in device settings.'
+          'No Authentication Available',
+          'No authentication methods found on this device. Please set up device security.'
         );
         setIsAuthenticating(false);
         return false;
       }
 
-      // Perform the actual authentication
+      // Perform authentication - will automatically fallback to device credentials if biometrics not available
       const result = await LocalAuthentication.authenticateAsync({
         promptMessage,
         fallbackLabel: 'Use Passcode',
         cancelLabel: 'Cancel',
+        disableDeviceFallback: false, // Allow device credentials (PIN/Pattern/Password)
       });
 
       setIsAuthenticating(false);
