@@ -8,6 +8,7 @@ import AuthSetupScreen from './src/screens/AuthSetupScreen';
 import TodoListScreen from './src/screens/TodoListScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 import {loadAuthSetup} from './src/utils/storage';
+import {useScreenshotDetection} from './src/hooks/useScreenshotDetection';
 
 const Stack = createStackNavigator();
 
@@ -15,6 +16,9 @@ function App() {
   const isDarkMode = useColorScheme() === 'dark';
   const [isAuthSetup, setIsAuthSetup] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Initialize screenshot detection
+  useScreenshotDetection();
 
   useEffect(() => {
     checkAuthSetup();
@@ -45,7 +49,7 @@ function App() {
         <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
         <Stack.Navigator>
           {!isAuthSetup ? (
-            <Stack.Screen 
+            <Stack.Screen
               name="AuthSetup"
               options={{headerShown: false}}
             >
@@ -53,8 +57,8 @@ function App() {
             </Stack.Screen>
           ) : (
             <>
-              <Stack.Screen 
-                name="TodoList" 
+              <Stack.Screen
+                name="TodoList"
                 component={TodoListScreen}
                 options={({navigation}) => ({
                   title: 'My Todos',
@@ -68,8 +72,8 @@ function App() {
                   ),
                 })}
               />
-              <Stack.Screen 
-                name="Settings" 
+              <Stack.Screen
+                name="Settings"
                 component={SettingsScreen}
                 options={{
                   title: 'Settings',
