@@ -73,3 +73,13 @@ yarn-error.log
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# Expo
+.expo
+dist/
+web-build/
+# Signing files
+android/keystore.properties
+android/app/keystore/
+*.p8
+*.mobileprovision

@@ -1,4 +1,39 @@
 {
+  "expo": {
+    "name": "PdTest",
+    "slug": "pd-test",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "pd-test",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.pdtest.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.pdtest.app"
+    },
+    "plugins": [
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Use Face ID to authenticate with biometric data."
+        }
+      ]
+    ]
+  },
   "name": "PdTest",
   "displayName": "PdTest"
 }
