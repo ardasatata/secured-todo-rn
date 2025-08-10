@@ -19,18 +19,18 @@ export default function AuthSetupScreen({onAuthSetup}: Props) {
 
   const handleSetupAuth = async () => {
     setIsLoading(true);
-    
+
     try {
       const hasHardware = await LocalAuthentication.hasHardwareAsync();
       if (!hasHardware) {
         Alert.alert(
-          'Simulator Mode', 
+          'Simulator Mode',
           'Biometric authentication is not available on simulator. Proceeding with demo mode.',
           [
             {text: 'OK', onPress: async () => {
               await saveAuthSetup(true);
               onAuthSetup();
-            }}
+            }},
           ]
         );
         setIsLoading(false);
@@ -40,14 +40,14 @@ export default function AuthSetupScreen({onAuthSetup}: Props) {
       const isEnrolled = await LocalAuthentication.isEnrolledAsync();
       if (!isEnrolled) {
         Alert.alert(
-          'Setup Required', 
+          'Setup Required',
           'No biometric data enrolled. Please set up biometrics in your device settings first, or continue in demo mode.',
           [
             {text: 'Cancel', style: 'cancel'},
             {text: 'Demo Mode', onPress: async () => {
               await saveAuthSetup(true);
               onAuthSetup();
-            }}
+            }},
           ]
         );
         setIsLoading(false);
@@ -62,7 +62,7 @@ export default function AuthSetupScreen({onAuthSetup}: Props) {
       if (result.success) {
         await saveAuthSetup(true);
         Alert.alert('Success', 'Biometric authentication has been set up successfully!', [
-          {text: 'OK', onPress: onAuthSetup}
+          {text: 'OK', onPress: onAuthSetup},
         ]);
       } else {
         Alert.alert('Authentication Failed', 'Please try again.');
@@ -70,14 +70,14 @@ export default function AuthSetupScreen({onAuthSetup}: Props) {
     } catch (error) {
       console.error('Auth setup error:', error);
       Alert.alert(
-        'Error', 
+        'Error',
         'Failed to setup authentication. Continue in demo mode?',
         [
           {text: 'Cancel', style: 'cancel'},
           {text: 'Demo Mode', onPress: async () => {
             await saveAuthSetup(true);
             onAuthSetup();
-          }}
+          }},
         ]
       );
     } finally {
@@ -92,9 +92,9 @@ export default function AuthSetupScreen({onAuthSetup}: Props) {
         <Text style={styles.subtitle}>
           Set up biometric authentication to secure your todos
         </Text>
-        
-        <TouchableOpacity 
-          style={[styles.button, isLoading && styles.buttonDisabled]} 
+
+        <TouchableOpacity
+          style={[styles.button, isLoading && styles.buttonDisabled]}
           onPress={handleSetupAuth}
           disabled={isLoading}
         >

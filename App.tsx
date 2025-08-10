@@ -1,9 +1,12 @@
 import React, {useState, useEffect} from 'react';
-import {StatusBar, useColorScheme} from 'react-native';
+import {StatusBar, useColorScheme, TouchableOpacity, Text} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
+import {Provider} from 'react-redux';
+import {store} from './src/store/store';
 import AuthSetupScreen from './src/screens/AuthSetupScreen';
 import TodoListScreen from './src/screens/TodoListScreen';
+import SettingsScreen from './src/screens/SettingsScreen';
 import {loadAuthSetup} from './src/utils/storage';
 
 const Stack = createStackNavigator();
@@ -37,18 +40,46 @@ function App() {
   }
 
   return (
-    <NavigationContainer>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <Stack.Navigator screenOptions={{headerShown: false}}>
-        {!isAuthSetup ? (
-          <Stack.Screen name="AuthSetup">
-            {props => <AuthSetupScreen {...props} onAuthSetup={handleAuthSetup} />}
-          </Stack.Screen>
-        ) : (
-          <Stack.Screen name="TodoList" component={TodoListScreen} />
-        )}
-      </Stack.Navigator>
-    </NavigationContainer>
+    <Provider store={store}>
+      <NavigationContainer>
+        <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+        <Stack.Navigator>
+          {!isAuthSetup ? (
+            <Stack.Screen 
+              name="AuthSetup"
+              options={{headerShown: false}}
+            >
+              {props => <AuthSetupScreen {...props} onAuthSetup={handleAuthSetup} />}
+            </Stack.Screen>
+          ) : (
+            <>
+              <Stack.Screen 
+                name="TodoList" 
+                component={TodoListScreen}
+                options={({navigation}) => ({
+                  title: 'My Todos',
+                  headerRight: () => (
+                    <TouchableOpacity
+                      style={{marginRight: 15, padding: 5}}
+                      onPress={() => navigation.navigate('Settings')}
+                    >
+                      <Text style={{fontSize: 20}}>⚙️</Text>
+                    </TouchableOpacity>
+                  ),
+                })}
+              />
+              <Stack.Screen 
+                name="Settings" 
+                component={SettingsScreen}
+                options={{
+                  title: 'Settings',
+                }}
+              />
+            </>
+          )}
+        </Stack.Navigator>
+      </NavigationContainer>
+    </Provider>
   );
 }
 

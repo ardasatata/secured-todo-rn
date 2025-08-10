@@ -12,61 +12,73 @@ import {
   Alert,
 } from 'react-native';
 import {Todo} from '../types/Todo';
-import {saveTodos, loadTodos} from '../utils/storage';
+import {loadTodos} from '../utils/storage';
+import {useAppDispatch, useAppSelector} from '../store/hooks';
+import {addTodo, updateTodo, deleteTodo, setTodos} from '../store/todoSlice';
+import {useAuthentication} from '../hooks/useAuthentication';
+import {TodoItem} from '../components/TodoItem';
 
 export default function TodoListScreen() {
-  const [todos, setTodos] = useState<Todo[]>([]);
+  // Get todos from Redux store instead of local state
+  const todos = useAppSelector(state => state.todos.todos);
+  const dispatch = useAppDispatch();
+
+  // Authentication hook for CRUD operations
+  const { authenticate, isAuthenticating } = useAuthentication();
+
+  // Local component state for input and editing
   const [inputText, setInputText] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
 
+  // Load todos from storage on component mount
   useEffect(() => {
-    loadTodosFromStorage();
-  }, []);
+    const loadInitialTodos = async () => {
+      const loadedTodos = await loadTodos();
+      dispatch(setTodos(loadedTodos));
+    };
+    loadInitialTodos();
+  }, [dispatch]);
 
-  const loadTodosFromStorage = async () => {
-    const loadedTodos = await loadTodos();
-    setTodos(loadedTodos);
-  };
-
-  const saveTodosToStorage = async (newTodos: Todo[]) => {
-    await saveTodos(newTodos);
-  };
-
-  const addTodo = () => {
+  // Add todo with authentication check
+  const handleAddTodo = async () => {
     if (inputText.trim() === '') {
       Alert.alert('Error', 'Please enter a todo item');
       return;
     }
 
-    const newTodo: Todo = {
-      id: Date.now().toString(),
-      text: inputText.trim(),
-      createdAt: new Date(),
-    };
+    // Authenticate before adding todo (as required by assignment)
+    const isAuthenticated = await authenticate('Authenticate to add todo');
+    if (!isAuthenticated) {
+      return; // Don't proceed if authentication failed
+    }
 
-    const updatedTodos = [...todos, newTodo];
-    setTodos(updatedTodos);
-    saveTodosToStorage(updatedTodos);
+    // Dispatch action to Redux store
+    dispatch(addTodo({ text: inputText.trim() }));
     setInputText('');
   };
 
-  const updateTodo = () => {
+  // Update todo with authentication check
+  const handleUpdateTodo = async () => {
     if (inputText.trim() === '' || !editingId) {
       Alert.alert('Error', 'Please enter a todo item');
       return;
     }
 
-    const updatedTodos = todos.map(todo =>
-      todo.id === editingId ? {...todo, text: inputText.trim()} : todo
-    );
+    // Authenticate before updating todo (as required by assignment)
+    const isAuthenticated = await authenticate('Authenticate to update todo');
+    if (!isAuthenticated) {
+      return; // Don't proceed if authentication failed
+    }
 
-    setTodos(updatedTodos);
-    saveTodosToStorage(updatedTodos);
+    // Dispatch update action to Redux store
+    dispatch(updateTodo({ id: editingId, text: inputText.trim() }));
+
     setInputText('');
     setEditingId(null);
   };
 
-  const deleteTodo = (id: string) => {
+  // Delete todo with authentication check
+  const handleDeleteTodo = async (id: string) => {
     Alert.alert(
       'Delete Todo',
       'Are you sure you want to delete this todo?',
@@ -75,10 +87,17 @@ export default function TodoListScreen() {
         {
           text: 'Delete',
           style: 'destructive',
-          onPress: () => {
-            const updatedTodos = todos.filter(todo => todo.id !== id);
-            setTodos(updatedTodos);
-            saveTodosToStorage(updatedTodos);
+          onPress: async () => {
+            // Authenticate before deleting todo (as required by assignment)
+            const isAuthenticated = await authenticate('Authenticate to delete todo');
+            if (!isAuthenticated) {
+              return; // Don't proceed if authentication failed
+            }
+
+            // Dispatch delete action to Redux store
+            dispatch(deleteTodo(id));
+
+            // Clear editing state if we're deleting the todo being edited
             if (editingId === id) {
               setEditingId(null);
               setInputText('');
@@ -99,24 +118,14 @@ export default function TodoListScreen() {
     setInputText('');
   };
 
+  // Render function for FlatList - now uses extracted TodoItem component
   const renderTodoItem = ({item}: {item: Todo}) => (
-    <View style={[
-      styles.todoItem, 
-      editingId === item.id && styles.todoItemEditing
-    ]}>
-      <TouchableOpacity
-        style={styles.todoContent}
-        onPress={() => startEditing(item)}
-      >
-        <Text style={styles.todoText}>{item.text}</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.deleteButton}
-        onPress={() => deleteTodo(item.id)}
-      >
-        <Text style={styles.deleteButtonText}>✕</Text>
-      </TouchableOpacity>
-    </View>
+    <TodoItem
+      item={item}
+      isEditing={editingId === item.id}
+      onEdit={startEditing}
+      onDelete={handleDeleteTodo}
+    />
   );
 
   return (
@@ -125,9 +134,6 @@ export default function TodoListScreen() {
         style={styles.keyboardContainer}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <View style={styles.header}>
-          <Text style={styles.title}>My Todos</Text>
-        </View>
 
         <FlatList
           data={todos}
@@ -143,18 +149,19 @@ export default function TodoListScreen() {
         <View style={styles.inputContainer}>
           <TextInput
             style={styles.textInput}
-            placeholder={editingId ? "Update todo..." : "Add a new todo..."}
+            placeholder={editingId ? 'Update todo...' : 'Add a new todo...'}
             value={inputText}
             onChangeText={setInputText}
-            onSubmitEditing={editingId ? updateTodo : addTodo}
-            returnKeyType={editingId ? "done" : "send"}
+            onSubmitEditing={editingId ? handleUpdateTodo : handleAddTodo}
+            returnKeyType={editingId ? 'done' : 'send'}
           />
           <TouchableOpacity
-            style={[styles.actionButton, editingId && styles.updateButton]}
-            onPress={editingId ? updateTodo : addTodo}
+            style={[styles.actionButton, editingId && styles.updateButton, isAuthenticating && styles.buttonDisabled]}
+            onPress={editingId ? handleUpdateTodo : handleAddTodo}
+            disabled={isAuthenticating}
           >
             <Text style={styles.actionButtonText}>
-              {editingId ? "Update" : "Add"}
+              {editingId ? 'Update' : 'Add'}
             </Text>
           </TouchableOpacity>
           {editingId && (
@@ -179,15 +186,6 @@ const styles = StyleSheet.create({
   keyboardContainer: {
     flex: 1,
   },
-  header: {
-    padding: 20,
-    paddingBottom: 10,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
-  },
   list: {
     flex: 1,
     paddingHorizontal: 20,
@@ -201,48 +199,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#999',
     textAlign: 'center',
-  },
-  todoItem: {
-    flexDirection: 'row',
-    backgroundColor: '#fff',
-    marginVertical: 4,
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  todoItemEditing: {
-    backgroundColor: '#e3f2fd',
-    borderColor: '#2196f3',
-    borderWidth: 2,
-  },
-  todoContent: {
-    flex: 1,
-  },
-  todoText: {
-    fontSize: 16,
-    color: '#333',
-  },
-  deleteButton: {
-    backgroundColor: '#ff4444',
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 10,
-  },
-  deleteButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
   },
   inputContainer: {
     flexDirection: 'row',
@@ -271,6 +227,10 @@ const styles = StyleSheet.create({
   },
   updateButton: {
     backgroundColor: '#4CAF50',
+  },
+  buttonDisabled: {
+    backgroundColor: '#999',
+    opacity: 0.6,
   },
   actionButtonText: {
     color: '#fff',

@@ -18,7 +18,7 @@ export const loadTodos = async (): Promise<Todo[]> => {
     const jsonValue = await AsyncStorage.getItem(TODOS_KEY);
     return jsonValue != null ? JSON.parse(jsonValue).map((todo: any) => ({
       ...todo,
-      createdAt: new Date(todo.createdAt)
+      createdAt: new Date(todo.createdAt),
     })) : [];
   } catch (e) {
     console.error('Error loading todos:', e);
@@ -37,9 +37,11 @@ export const saveAuthSetup = async (isSetup: boolean): Promise<void> => {
 export const loadAuthSetup = async (): Promise<boolean> => {
   try {
     const jsonValue = await AsyncStorage.getItem(AUTH_SETUP_KEY);
-    return jsonValue != null ? JSON.parse(jsonValue) : false;
+    // Default to true (authentication enabled) when no setting is stored
+    return jsonValue != null ? JSON.parse(jsonValue) : true;
   } catch (e) {
     console.error('Error loading auth setup status:', e);
-    return false;
+    // Default to true on error to maintain security
+    return true;
   }
 };
