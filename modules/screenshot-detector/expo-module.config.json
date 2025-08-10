@@ -1,0 +1,9 @@
+{
+  "platforms": ["ios", "android"],
+  "ios": {
+    "modules": ["ScreenshotDetectorModule"]
+  },
+  "android": {
+    "modules": ["expo.modules.screenshotdetector.ScreenshotDetectorModule"]
+  }
+}
