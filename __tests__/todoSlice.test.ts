@@ -40,7 +40,7 @@ describe('todoSlice', () => {
     const todoText = 'New todo';
     const previousState = {...initialState};
     const actual = todoReducer(previousState, addTodo({text: todoText}));
-    
+
     expect(actual.todos).toHaveLength(1);
     expect(actual.todos[0].text).toBe(todoText);
     expect(actual.todos[0].id).toBeDefined();

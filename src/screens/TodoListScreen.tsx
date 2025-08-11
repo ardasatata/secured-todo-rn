@@ -130,51 +130,51 @@ export default function TodoListScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView
-        style={styles.keyboardContainer}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
+        <KeyboardAvoidingView
+          style={styles.keyboardContainer}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
 
-        <FlatList
-          data={todos}
-          renderItem={renderTodoItem}
-          keyExtractor={item => item.id}
-          style={styles.list}
-          contentContainerStyle={todos.length === 0 ? styles.emptyList : undefined}
-          ListEmptyComponent={
-            <Text style={styles.emptyText}>No todos yet. Add one below!</Text>
-          }
-        />
-
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.textInput}
-            placeholder={editingId ? 'Update todo...' : 'Add a new todo...'}
-            value={inputText}
-            onChangeText={setInputText}
-            onSubmitEditing={editingId ? handleUpdateTodo : handleAddTodo}
-            returnKeyType={editingId ? 'done' : 'send'}
+          <FlatList
+            data={todos}
+            renderItem={renderTodoItem}
+            keyExtractor={item => item.id}
+            style={styles.list}
+            contentContainerStyle={todos.length === 0 ? styles.emptyList : undefined}
+            ListEmptyComponent={
+              <Text style={styles.emptyText}>No todos yet. Add one below!</Text>
+            }
           />
-          <TouchableOpacity
-            style={[styles.actionButton, editingId && styles.updateButton, isAuthenticating && styles.buttonDisabled]}
-            onPress={editingId ? handleUpdateTodo : handleAddTodo}
-            disabled={isAuthenticating}
-          >
-            <Text style={styles.actionButtonText}>
-              {editingId ? 'Update' : 'Add'}
-            </Text>
-          </TouchableOpacity>
-          {editingId && (
+
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.textInput}
+              placeholder={editingId ? 'Update todo...' : 'Add a new todo...'}
+              value={inputText}
+              onChangeText={setInputText}
+              onSubmitEditing={editingId ? handleUpdateTodo : handleAddTodo}
+              returnKeyType={editingId ? 'done' : 'send'}
+            />
             <TouchableOpacity
-              style={styles.cancelButton}
-              onPress={cancelEditing}
+              style={[styles.actionButton, editingId && styles.updateButton, isAuthenticating && styles.buttonDisabled]}
+              onPress={editingId ? handleUpdateTodo : handleAddTodo}
+              disabled={isAuthenticating}
             >
-              <Text style={styles.cancelButtonText}>Cancel</Text>
+              <Text style={styles.actionButtonText}>
+                {editingId ? 'Update' : 'Add'}
+              </Text>
             </TouchableOpacity>
-          )}
-        </View>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+            {editingId && (
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={cancelEditing}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
   );
 }
 

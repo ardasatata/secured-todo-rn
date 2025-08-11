@@ -10,17 +10,12 @@ import {
   ScrollView,
 } from 'react-native';
 import * as LocalAuthentication from 'expo-local-authentication';
-import {saveAuthSetup, loadAuthSetup, saveScreenshotDetection, loadScreenshotDetection} from '../utils/storage';
-import {useScreenshotDetection} from '../hooks/useScreenshotDetection';
+import {saveAuthSetup, loadAuthSetup} from '../utils/storage';
 
 export default function SettingsScreen() {
   const [biometricEnabled, setBiometricEnabled] = useState(false);
   const [biometricType, setBiometricType] = useState<string>('None');
   const [hasHardware, setHasHardware] = useState(false);
-  const [screenshotDetectionEnabled, setScreenshotDetectionEnabled] = useState(false);
-
-  // Screenshot detection hook
-  const { triggerTestScreenshot } = useScreenshotDetection();
 
   useEffect(() => {
     initializeSettings();
@@ -31,10 +26,6 @@ export default function SettingsScreen() {
       // Check current auth setup status
       const authEnabled = await loadAuthSetup();
       setBiometricEnabled(authEnabled);
-
-      // Check current screenshot detection status
-      const screenshotEnabled = await loadScreenshotDetection();
-      setScreenshotDetectionEnabled(screenshotEnabled);
 
       // Check device capabilities
       const hardwareAvailable = await LocalAuthentication.hasHardwareAsync();
@@ -111,50 +102,11 @@ export default function SettingsScreen() {
     }
   };
 
-  const toggleScreenshotDetection = async (value: boolean) => {
-    // Store the current state in case we need to revert
-    const currentState = screenshotDetectionEnabled;
-
-    if (value) {
-      // Enable screenshot detection - no auth required
-      try {
-        await saveScreenshotDetection(true);
-        setScreenshotDetectionEnabled(true);
-        Alert.alert('Success', 'Screenshot detection enabled!');
-      } catch (error) {
-        console.error('Error enabling screenshot detection:', error);
-        Alert.alert('Error', 'Failed to enable screenshot detection');
-        setScreenshotDetectionEnabled(currentState);
-      }
-    } else {
-      // Disable screenshot detection - require authentication
-      try {
-        const result = await LocalAuthentication.authenticateAsync({
-          promptMessage: 'Authenticate to disable screenshot detection',
-          disableDeviceFallback: false,
-        });
-
-        if (result.success) {
-          await saveScreenshotDetection(false);
-          setScreenshotDetectionEnabled(false);
-          Alert.alert('Success', 'Screenshot detection disabled!');
-        } else {
-          // Authentication failed or cancelled, revert switch state
-          setScreenshotDetectionEnabled(currentState);
-        }
-      } catch (error) {
-        console.error('Error disabling screenshot detection:', error);
-        Alert.alert('Error', 'Failed to disable screenshot detection');
-        // Revert switch state on error
-        setScreenshotDetectionEnabled(currentState);
-      }
-    }
-  };
 
   const resetSettings = async () => {
     Alert.alert(
       'Reset Settings',
-      'This will disable biometric authentication, screenshot detection, and reset all settings. Continue?',
+      'This will disable biometric authentication and reset all settings. Continue?',
       [
         {text: 'Cancel', style: 'cancel'},
         {
@@ -162,9 +114,7 @@ export default function SettingsScreen() {
           style: 'destructive',
           onPress: async () => {
             await saveAuthSetup(false);
-            await saveScreenshotDetection(false);
             setBiometricEnabled(false);
-            setScreenshotDetectionEnabled(false);
             Alert.alert('Reset Complete', 'All settings have been reset');
           },
         },
@@ -193,18 +143,6 @@ export default function SettingsScreen() {
             />
           </View>
 
-          <View style={styles.settingItem}>
-            <View style={styles.settingInfo}>
-              <Text style={styles.settingLabel}>Screenshot Detection</Text>
-              <Text style={styles.settingDescription}>
-                Alert when screenshots are taken
-              </Text>
-            </View>
-            <Switch
-              value={screenshotDetectionEnabled}
-              onValueChange={toggleScreenshotDetection}
-            />
-          </View>
 
           <View style={styles.settingItem}>
             <View style={styles.settingInfo}>
@@ -218,15 +156,6 @@ export default function SettingsScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>General</Text>
 
-          <TouchableOpacity style={styles.settingItem} onPress={() => triggerTestScreenshot()}>
-            <View style={styles.settingInfo}>
-              <Text style={styles.settingLabel}>Test Screenshot Alert</Text>
-              <Text style={styles.settingDescription}>
-                Test the screenshot detection functionality
-              </Text>
-            </View>
-          </TouchableOpacity>
-
           <TouchableOpacity style={styles.settingItem} onPress={resetSettings}>
             <View style={styles.settingInfo}>
               <Text style={[styles.settingLabel, styles.dangerText]}>Reset Settings</Text>
@@ -236,6 +165,7 @@ export default function SettingsScreen() {
             </View>
           </TouchableOpacity>
         </View>
+
 
         {/* App Info Section */}
         <View style={styles.section}>

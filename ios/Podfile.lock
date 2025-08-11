@@ -1892,8 +1892,6 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - ScreenshotDetector (1.0.0):
-    - ExpoModulesCore
   - SocketRocket (0.7.1)
   - Yoga (0.0.0)
 
@@ -1981,7 +1979,6 @@ DEPENDENCIES:
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNScreens (from `../node_modules/react-native-screens`)
-  - ScreenshotDetector (from `../modules/screenshot-detector/ios`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -2152,8 +2149,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-gesture-handler"
   RNScreens:
     :path: "../node_modules/react-native-screens"
-  ScreenshotDetector:
-    :path: "../modules/screenshot-detector/ios"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -2239,7 +2234,6 @@ SPEC CHECKSUMS:
   RNCAsyncStorage: 2cf7d05f5b1bc38680b6c83971e535a6ae9c5bc7
   RNGestureHandler: f8d0f8c032ba1209eb370bcc29e1138788208673
   RNScreens: fd709d812885ccf4fac5cb35389147c399c0f164
-  ScreenshotDetector: 913fcb2e1a29abec3b4ee826b05bfa6401246b76
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: 7fb3f48a328f20ea5d5eecd862e91798bd76b255
 

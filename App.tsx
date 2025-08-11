@@ -8,7 +8,6 @@ import AuthSetupScreen from './src/screens/AuthSetupScreen';
 import TodoListScreen from './src/screens/TodoListScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 import {loadAuthSetup} from './src/utils/storage';
-import {useScreenshotDetection} from './src/hooks/useScreenshotDetection';
 
 const Stack = createStackNavigator();
 
@@ -16,9 +15,6 @@ function App() {
   const isDarkMode = useColorScheme() === 'dark';
   const [isAuthSetup, setIsAuthSetup] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-
-  // Initialize screenshot detection
-  useScreenshotDetection();
 
   useEffect(() => {
     checkAuthSetup();

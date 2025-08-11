@@ -27,7 +27,7 @@ const authenticateUser = async (promptMessage: string = 'Please authenticate'): 
     const hasHardware = await LocalAuthentication.hasHardwareAsync();
     if (!hasHardware) {
       Alert.alert(
-        'Authentication', 
+        'Authentication',
         'Biometric authentication not available. Proceeding in demo mode.'
       );
       return true;
@@ -36,7 +36,7 @@ const authenticateUser = async (promptMessage: string = 'Please authenticate'): 
     const isEnrolled = await LocalAuthentication.isEnrolledAsync();
     if (!isEnrolled) {
       Alert.alert(
-        'No Biometrics', 
+        'No Biometrics',
         'No biometric data found. Please set up biometrics in device settings.'
       );
       return false;
@@ -51,7 +51,7 @@ const authenticateUser = async (promptMessage: string = 'Please authenticate'): 
     if (!result.success && result.error !== 'user_cancel') {
       Alert.alert('Authentication Failed', 'Please try again');
     }
-    
+
     return result.success;
   } catch (error) {
     Alert.alert('Error', 'An error occurred during authentication');
