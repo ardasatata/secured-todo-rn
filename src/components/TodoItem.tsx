@@ -28,7 +28,10 @@ export const TodoItem: React.FC<TodoItemProps> = ({
   const styles = createStyles(theme);
 
   return (
-    <View style={[styles.todoItem, isEditing && styles.todoItemEditing]}>
+    <View style={[
+      styles.todoItem,
+      isEditing && styles.todoItemEditing,
+    ]}>
       {/* Checkbox for completion toggle */}
       <Checkbox
         style={styles.checkbox}
@@ -39,7 +42,10 @@ export const TodoItem: React.FC<TodoItemProps> = ({
 
       {/* Todo content - tappable to start editing */}
       <TouchableOpacity
-        style={styles.todoContent}
+        style={[
+          styles.todoContent,
+          item.completed && styles.todoItemCompleted
+        ]}
         onPress={() => onEdit(item)}
       >
         <AnimatedStrikethrough
@@ -62,7 +68,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
         <MaterialIcons
           name="close"
           size={18}
-          color={theme.colors.onPrimary}
+          color={theme.colors.primary}
         />
       </TouchableOpacity>
     </View>
@@ -72,18 +78,20 @@ export const TodoItem: React.FC<TodoItemProps> = ({
 const createStyles = (theme: any) => StyleSheet.create({
   todoItem: {
     flexDirection: 'row',
-    backgroundColor: theme.colors.surface,
+    backgroundColor: theme.colors.white,
     marginVertical: theme.spacing.xs,
     padding: theme.spacing.listItemPadding,
-    borderRadius: theme.spacing.borderRadius.md,
+    borderRadius: theme.spacing.borderRadius.sm,
     alignItems: 'center',
-    shadowColor: theme.colors.shadow,
-    ...theme.spacing.shadow.small,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
   },
   todoItemEditing: {
-    backgroundColor: theme.colors.todoEditing,
-    borderColor: theme.colors.todoEditingBorder,
+    borderColor: theme.colors.primary,
     borderWidth: 2,
+  },
+  todoItemCompleted: {
+    opacity: 0.8,
   },
   checkbox: {
     width: 20,
@@ -98,16 +106,10 @@ const createStyles = (theme: any) => StyleSheet.create({
     color: theme.colors.onSurface,
   },
   completedText: {
-    color: theme.colors.todoCompleted,
-    opacity: 0.7,
+    color: theme.colors.textDisabled,
   },
   deleteButton: {
-    backgroundColor: theme.colors.error,
-    width: 30,
-    height: 30,
-    borderRadius: theme.spacing.borderRadius.full,
-    justifyContent: 'center',
-    alignItems: 'center',
+    padding: theme.spacing.xs,
     marginLeft: theme.spacing.sm,
   },
 });

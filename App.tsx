@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {StatusBar, useColorScheme, TouchableOpacity, Text} from 'react-native';
+import {StatusBar, useColorScheme} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {Provider} from 'react-redux';
@@ -9,7 +9,6 @@ import AuthSetupScreen from './src/screens/AuthSetupScreen';
 import TodoListScreen from './src/screens/TodoListScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 import {loadAuthSetup} from './src/utils/authStorage';
-import {Ionicons} from '@expo/vector-icons';
 
 const Stack = createStackNavigator();
 
@@ -59,23 +58,17 @@ function App() {
               <Stack.Screen
                 name="TodoList"
                 component={TodoListScreen}
-                options={({navigation}) => ({
-                  title: 'My Todos',
-                  headerRight: () => (
-                    <TouchableOpacity
-                      style={{marginRight: 15, padding: 5}}
-                      onPress={() => navigation.navigate('Settings')}
-                    >
-                      <Ionicons name="settings-outline" size={24} color="black" />
-                    </TouchableOpacity>
-                  ),
-                })}
+                options={{
+                  headerShown: false,
+                }}
               />
               <Stack.Screen
                 name="Settings"
                 component={SettingsScreen}
                 options={{
                   title: 'Settings',
+                  headerBackTitle: '',
+                  headerTintColor: '#000000',
                 }}
               />
             </>

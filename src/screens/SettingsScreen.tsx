@@ -11,8 +11,12 @@ import {
 } from 'react-native';
 import * as LocalAuthentication from 'expo-local-authentication';
 import {saveAuthSetup, loadAuthSetup} from '../utils/authStorage';
+import {useTheme} from '../hooks/useTheme';
 
 export default function SettingsScreen() {
+  const theme = useTheme();
+  const styles = createStyles(theme);
+
   const [biometricEnabled, setBiometricEnabled] = useState(false);
   const [biometricType, setBiometricType] = useState<string>('None');
   const [hasHardware, setHasHardware] = useState(false);
@@ -140,6 +144,8 @@ export default function SettingsScreen() {
               value={biometricEnabled}
               onValueChange={toggleBiometric}
               disabled={!hasHardware}
+              trackColor={{false: theme.colors.surface, true: theme.colors.primary}}
+              thumbColor={theme.colors.surface}
             />
           </View>
 
@@ -190,58 +196,50 @@ export default function SettingsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: theme.colors.background,
   },
   scrollView: {
     flex: 1,
   },
   content: {
-    padding: 20,
-    paddingBottom: 40,
+    padding: theme.spacing.componentPadding,
+    paddingBottom: theme.spacing.xl,
   },
   section: {
-    marginBottom: 30,
+    marginBottom: theme.spacing.xxxl,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 15,
+    ...theme.typography.subtitle,
+    color: theme.colors.onBackground,
+    marginBottom: theme.spacing.listItemPadding,
   },
   settingItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    padding: 15,
-    borderRadius: 8,
-    marginBottom: 8,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 1,
+    backgroundColor: theme.colors.white,
+    padding: theme.spacing.listItemPadding,
+    borderRadius: theme.spacing.borderRadius.sm,
+    marginBottom: theme.spacing.xs,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
   },
   settingInfo: {
     flex: 1,
   },
   settingLabel: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#333',
-    marginBottom: 4,
+    ...theme.typography.body,
+    color: theme.colors.onSurface,
+    marginBottom: theme.spacing.xs,
   },
   settingDescription: {
-    fontSize: 14,
-    color: '#666',
+    ...theme.typography.bodySmall,
+    color: theme.colors.textSecondary,
   },
   dangerText: {
-    color: '#ff4444',
+    color: theme.colors.error,
   },
 });

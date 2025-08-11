@@ -153,7 +153,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     backgroundColor: theme.colors.primary,
     paddingHorizontal: theme.spacing.xxxl,
     paddingVertical: theme.spacing.listItemPadding,
-    borderRadius: theme.spacing.borderRadius.md,
+    borderRadius: theme.spacing.borderRadius.sm,
     minWidth: 200,
     alignItems: 'center',
   },

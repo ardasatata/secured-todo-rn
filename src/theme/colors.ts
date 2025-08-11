@@ -24,10 +24,10 @@ export const colors = {
   gray900: '#212121',
 
   // Status colors
-  success: '#333333',
-  warning: '#666666',
-  error: '#000000',
-  info: '#666666',
+  success: '#4A6741',
+  warning: '#8B6914',
+  error: '#8B3A3A',
+  info: '#4A5B8B',
 
   // Background colors
   background: '#FFFFFF',

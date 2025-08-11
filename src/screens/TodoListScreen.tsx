@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
   Platform,
   SafeAreaView,
   Alert,
+  Keyboard,
 } from 'react-native';
 import {Todo} from '../types/Todo';
 import {loadTodos} from '../utils/storage';
@@ -18,6 +19,8 @@ import {addTodo, updateTodo, toggleTodo, deleteTodo, setTodos} from '../store/to
 import {useAuthentication} from '../hooks/useAuthentication';
 import {useTheme} from '../hooks/useTheme';
 import {TodoItem} from '../components/TodoItem';
+import {TodoHeader} from '../components/TodoHeader';
+import {MaterialIcons} from '@expo/vector-icons';
 
 export default function TodoListScreen() {
   // Get todos from Redux store instead of local state
@@ -33,6 +36,7 @@ export default function TodoListScreen() {
   // Local component state for input and editing
   const [inputText, setInputText] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
+  const inputRef = useRef<TextInput>(null);
 
   // Create styles with theme
   const styles = createStyles(theme);
@@ -118,11 +122,16 @@ export default function TodoListScreen() {
   const startEditing = (todo: Todo) => {
     setEditingId(todo.id);
     setInputText(todo.text);
+    // Auto-focus input to trigger keyboard
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 100);
   };
 
   const cancelEditing = () => {
     setEditingId(null);
     setInputText('');
+    Keyboard.dismiss();
   };
 
   // Toggle todo completion with authentication check
@@ -150,17 +159,13 @@ export default function TodoListScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <TodoHeader />
+
       <KeyboardAvoidingView
         style={styles.keyboardContainer}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 90}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 90}
       >
-        {/* Remaining todos counter */}
-        <View style={styles.counterContainer}>
-          <Text style={styles.counterText}>
-            Your remaining todos: {remainingTodos}
-          </Text>
-        </View>
 
         <FlatList
           data={todos}
@@ -171,13 +176,22 @@ export default function TodoListScreen() {
           ListEmptyComponent={
             <Text style={styles.emptyText}>No todos yet. Add one below!</Text>
           }
+          ListFooterComponent={
+            <View style={styles.counterContainer}>
+              <Text style={styles.counterText}>
+              Your remaining todos: {remainingTodos}
+              </Text>
+            </View>
+          }
         />
 
         <View style={styles.inputContainer}>
           <View style={styles.inputRow}>
             <TextInput
+              ref={inputRef}
               style={styles.textInput}
               placeholder={editingId ? 'Update todo...' : 'Add a new todo...'}
+              placeholderTextColor={theme.colors.textSecondary}
               value={inputText}
               onChangeText={setInputText}
               onSubmitEditing={editingId ? handleUpdateTodo : handleAddTodo}
@@ -194,15 +208,19 @@ export default function TodoListScreen() {
                 {editingId ? 'Update' : 'Add'}
               </Text>
             </TouchableOpacity>
+            {editingId && (
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={cancelEditing}
+              >
+                <MaterialIcons
+                  name="close"
+                  size={20}
+                  color={theme.colors.textSecondary}
+                />
+              </TouchableOpacity>
+            )}
           </View>
-          {editingId && (
-            <TouchableOpacity
-              style={styles.cancelButton}
-              onPress={cancelEditing}
-            >
-              <Text style={styles.cancelButtonText}>Cancel</Text>
-            </TouchableOpacity>
-          )}
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -233,11 +251,7 @@ const createStyles = (theme: any) => StyleSheet.create({
   },
   inputContainer: {
     padding: theme.spacing.componentPadding,
-    backgroundColor: theme.colors.surface,
-    borderTopWidth: 1,
-    borderTopColor: theme.colors.border,
-    shadowColor: theme.colors.shadow,
-    ...theme.spacing.shadow.large,
+    backgroundColor: theme.colors.white,
   },
   inputRow: {
     flexDirection: 'row',
@@ -245,26 +259,26 @@ const createStyles = (theme: any) => StyleSheet.create({
   },
   textInput: {
     flex: 1,
-    borderWidth: 1,
-    borderColor: theme.colors.borderLight,
-    borderRadius: theme.spacing.borderRadius.md,
-    paddingHorizontal: theme.spacing.listItemPadding,
+    borderBottomWidth: 2,
+    borderBottomColor: theme.colors.border,
+    paddingHorizontal: 0,
     paddingVertical: theme.spacing.buttonPadding,
     ...theme.typography.body,
     minHeight: 45,
     maxHeight: 100,
     textAlignVertical: 'top',
     color: theme.colors.onSurface,
+    backgroundColor: 'transparent',
   },
   actionButton: {
     backgroundColor: theme.colors.primary,
     paddingHorizontal: theme.spacing.componentPadding,
     paddingVertical: theme.spacing.buttonPadding,
-    borderRadius: theme.spacing.borderRadius.md,
+    borderRadius: theme.spacing.borderRadius.sm,
     marginLeft: theme.spacing.sm,
   },
   updateButton: {
-    backgroundColor: theme.colors.secondary,
+    backgroundColor: theme.colors.primary,
   },
   buttonDisabled: {
     backgroundColor: theme.colors.disabled,
@@ -275,27 +289,19 @@ const createStyles = (theme: any) => StyleSheet.create({
     ...theme.typography.button,
   },
   cancelButton: {
-    backgroundColor: theme.colors.disabled,
-    paddingHorizontal: theme.spacing.listItemPadding,
+    paddingHorizontal: theme.spacing.sm,
     paddingVertical: theme.spacing.buttonPadding,
-    borderRadius: theme.spacing.borderRadius.md,
-    marginTop: theme.spacing.sm,
-    alignSelf: 'flex-start',
-  },
-  cancelButtonText: {
-    color: theme.colors.onPrimary,
-    ...theme.typography.buttonSmall,
+    marginLeft: theme.spacing.sm,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   counterContainer: {
-    backgroundColor: theme.colors.surface,
-    paddingHorizontal: theme.spacing.componentPadding,
     paddingVertical: theme.spacing.listItemPadding,
-    borderBottomWidth: 1,
     borderBottomColor: theme.colors.border,
   },
   counterText: {
     ...theme.typography.subtitle,
     color: theme.colors.onSurface,
-    textAlign: 'center',
+    textAlign: 'left',
   },
 });

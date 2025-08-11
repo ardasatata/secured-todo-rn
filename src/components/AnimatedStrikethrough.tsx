@@ -91,7 +91,7 @@ export const AnimatedStrikethrough: React.FC<AnimatedStrikethroughProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    position: 'relative',
+    alignSelf: 'flex-start',
   },
   text: {
     fontSize: 16,
