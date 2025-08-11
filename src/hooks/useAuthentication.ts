@@ -1,46 +1,26 @@
 import { useState } from 'react';
-import * as LocalAuthentication from 'expo-local-authentication';
 import { Alert } from 'react-native';
-import { loadAuthSetup } from '../utils/storage';
+import { IAuthenticationService } from '../interfaces/IAuthService';
+import { AuthService } from '../services/AuthService';
 
-// Custom hook for handling biometric authentication
-// Returns authenticate function and loading state
-export const useAuthentication = () => {
+export const useAuthentication = (authService: IAuthenticationService = new AuthService()) => {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
 
-  // Main authentication function
-  // Returns true if authentication successful, false otherwise
   const authenticate = async (promptMessage: string = 'Please authenticate'): Promise<boolean> => {
     setIsAuthenticating(true);
 
     try {
-      // First check if biometric authentication is enabled in settings
-      const isAuthEnabled = await loadAuthSetup();
-      if (!isAuthEnabled) {
-        // Authentication is disabled in settings, allow access
-        setIsAuthenticating(false);
-        return true;
-      }
-
-      // Check if device has biometric hardware
-      const hasHardware = await LocalAuthentication.hasHardwareAsync();
-      if (!hasHardware) {
-        // For simulator/devices without biometric hardware
-        // In production, you might want to handle this differently
+      const capabilities = await authService.checkDeviceCapabilities();
+      if (!capabilities.hasHardware) {
         Alert.alert(
           'Authentication',
           'Biometric authentication not available. Proceeding in demo mode.'
         );
         setIsAuthenticating(false);
-        return true; // Allow access in demo mode
+        return true;
       }
 
-      // Check what authentication methods are available
-      const supportedAuthTypes = await LocalAuthentication.supportedAuthenticationTypesAsync();
-      const isEnrolled = await LocalAuthentication.isEnrolledAsync();
-      
-      // If no authentication methods available at all, fail
-      if (supportedAuthTypes.length === 0) {
+      if (capabilities.supportedAuthTypes.length === 0) {
         Alert.alert(
           'No Authentication Available',
           'No authentication methods found on this device. Please set up device security.'
@@ -49,24 +29,14 @@ export const useAuthentication = () => {
         return false;
       }
 
-      // Perform authentication - will automatically fallback to device credentials if biometrics not available
-      const result = await LocalAuthentication.authenticateAsync({
-        promptMessage,
-        fallbackLabel: 'Use Passcode',
-        cancelLabel: 'Cancel',
-        disableDeviceFallback: false, // Allow device credentials (PIN/Pattern/Password)
-      });
-
+      const result = await authService.authenticate(promptMessage);
       setIsAuthenticating(false);
 
-      if (!result.success) {
-        // User cancelled or authentication failed
-        if (result.error !== 'user_cancel') {
-          Alert.alert('Authentication Failed', 'Please try again');
-        }
+      if (!result) {
+        Alert.alert('Authentication Failed', 'Please try again');
       }
 
-      return result.success;
+      return result;
     } catch (error) {
       console.error('Authentication error:', error);
       Alert.alert('Error', 'An error occurred during authentication');

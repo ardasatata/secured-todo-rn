@@ -2,7 +2,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Todo} from '../types/Todo';
 
 const TODOS_KEY = '@todos';
-const AUTH_SETUP_KEY = '@auth_setup';
 
 export const saveTodos = async (todos: Todo[]): Promise<void> => {
   try {
@@ -23,26 +22,6 @@ export const loadTodos = async (): Promise<Todo[]> => {
   } catch (e) {
     console.error('Error loading todos:', e);
     return [];
-  }
-};
-
-export const saveAuthSetup = async (isSetup: boolean): Promise<void> => {
-  try {
-    await AsyncStorage.setItem(AUTH_SETUP_KEY, JSON.stringify(isSetup));
-  } catch (e) {
-    console.error('Error saving auth setup status:', e);
-  }
-};
-
-export const loadAuthSetup = async (): Promise<boolean> => {
-  try {
-    const jsonValue = await AsyncStorage.getItem(AUTH_SETUP_KEY);
-    // Default to true (authentication enabled) when no setting is stored
-    return jsonValue != null ? JSON.parse(jsonValue) : true;
-  } catch (e) {
-    console.error('Error loading auth setup status:', e);
-    // Default to true on error to maintain security
-    return true;
   }
 };
 

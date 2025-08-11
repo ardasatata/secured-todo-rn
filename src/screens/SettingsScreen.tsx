@@ -10,7 +10,7 @@ import {
   ScrollView,
 } from 'react-native';
 import * as LocalAuthentication from 'expo-local-authentication';
-import {saveAuthSetup, loadAuthSetup} from '../utils/storage';
+import {saveAuthSetup, loadAuthSetup} from '../utils/authStorage';
 
 export default function SettingsScreen() {
   const [biometricEnabled, setBiometricEnabled] = useState(false);

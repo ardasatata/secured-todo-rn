@@ -7,7 +7,7 @@ import {store} from './src/store/store';
 import AuthSetupScreen from './src/screens/AuthSetupScreen';
 import TodoListScreen from './src/screens/TodoListScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
-import {loadAuthSetup} from './src/utils/storage';
+import {loadAuthSetup} from './src/utils/authStorage';
 
 const Stack = createStackNavigator();
 

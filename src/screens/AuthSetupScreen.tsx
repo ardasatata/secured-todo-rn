@@ -7,22 +7,25 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import * as LocalAuthentication from 'expo-local-authentication';
-import {saveAuthSetup} from '../utils/storage';
+import {saveAuthSetup} from '../utils/authStorage';
+import { IAuthenticationService } from '../interfaces/IAuthService';
+import { AuthService } from '../services/AuthService';
+import { AuthError } from '../types/Auth';
 
 interface Props {
   onAuthSetup: () => void;
+  authService?: IAuthenticationService;
 }
 
-export default function AuthSetupScreen({onAuthSetup}: Props) {
+export default function AuthSetupScreen({onAuthSetup, authService = new AuthService()}: Props) {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSetupAuth = async () => {
     setIsLoading(true);
 
     try {
-      const hasHardware = await LocalAuthentication.hasHardwareAsync();
-      if (!hasHardware) {
+      const capabilities = await authService.checkDeviceCapabilities();
+      if (!capabilities.hasHardware) {
         Alert.alert(
           'Simulator Mode',
           'Biometric authentication is not available on simulator. Proceeding with demo mode.',
@@ -37,10 +40,7 @@ export default function AuthSetupScreen({onAuthSetup}: Props) {
         return;
       }
 
-      // Check what authentication methods are available
-      const supportedAuthTypes = await LocalAuthentication.supportedAuthenticationTypesAsync();
-
-      if (supportedAuthTypes.length === 0) {
+      if (capabilities.supportedAuthTypes.length === 0) {
         Alert.alert(
           'Setup Required',
           'No authentication methods available on this device. Please set up device security first, or continue in demo mode.',
@@ -56,17 +56,15 @@ export default function AuthSetupScreen({onAuthSetup}: Props) {
         return;
       }
 
-      const result = await LocalAuthentication.authenticateAsync({
-        promptMessage: 'Setup authentication for secure access',
-        fallbackLabel: 'Use Passcode',
-        disableDeviceFallback: false, // Allow device credentials as fallback
-      });
+      const result = await authService.setupAuthentication();
 
       if (result.success) {
         await saveAuthSetup(true);
         Alert.alert('Success', 'Authentication has been set up successfully!', [
           {text: 'OK', onPress: onAuthSetup},
         ]);
+      } else if (result.error === AuthError.USER_CANCEL) {
+        Alert.alert('Cancelled', 'Authentication setup was cancelled.');
       } else {
         Alert.alert('Authentication Failed', 'Please try again.');
       }
