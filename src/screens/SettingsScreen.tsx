@@ -10,7 +10,7 @@ import {
   ScrollView, Platform,
 } from 'react-native';
 import * as LocalAuthentication from 'expo-local-authentication';
-import {saveAuthSetup, loadAuthSetup, saveAuthEnabled, loadAuthEnabled} from '../utils/authStorage';
+import {saveAuthSetup, saveAuthEnabled, loadAuthEnabled} from '../utils/authStorage';
 import {useTheme, useThemeContext} from '../hooks/useTheme';
 import {ThemeMode} from '../utils/themeStorage';
 

@@ -10,7 +10,7 @@ describe('Theme Storage', () => {
 
   test('should save and load theme mode', async () => {
     const AsyncStorage = require('@react-native-async-storage/async-storage');
-    
+
     // Test saving theme mode
     await saveThemeMode('dark');
     expect(AsyncStorage.setItem).toHaveBeenCalledWith('theme_mode', 'dark');

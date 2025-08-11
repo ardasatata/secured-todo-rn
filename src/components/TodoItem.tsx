@@ -26,8 +26,8 @@ export const TodoItem: React.FC<TodoItemProps> = ({
   onToggle,
   index,
 }) => {
-  const { theme, isDark } = useTheme();
-  const styles = createStyles(theme, isDark);
+  const { theme } = useTheme();
+  const styles = createStyles(theme);
 
   return (
     <View style={[
@@ -80,7 +80,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
   );
 };
 
-const createStyles = (theme: any, isDark: boolean) => StyleSheet.create({
+const createStyles = (theme: any) => StyleSheet.create({
   todoItem: {
     flexDirection: 'row',
     backgroundColor: theme.colors.white,
