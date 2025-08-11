@@ -127,6 +127,11 @@ yarn test:e2e
 - Comprehensive color system for both themes
 - Smooth transitions between themes
 
+## References
+
+- **Strikethrough Animation**: [Expo Snack](https://snack.expo.dev/l9n-DBTtC)
+- **Design Inspiration**: [Dribbble - Clean Minimal Todo List](https://dribbble.com/shots/24425951-Clean-Minimal-Todo-List-Design)
+
 ## License
 
 MIT
