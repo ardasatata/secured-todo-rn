@@ -1,12 +1,18 @@
 import * as LocalAuthentication from 'expo-local-authentication';
 import { IAuthenticationService } from '../interfaces/IAuthService';
 import { DeviceCapabilities, AuthResult, AuthError } from '../types/Auth';
-import { loadAuthSetup } from '../utils/authStorage';
+import { AuthRepository, IAuthRepository } from '../repositories/AuthRepository';
 
 export class AuthService implements IAuthenticationService {
+  private authRepository: IAuthRepository;
+
+  constructor(authRepository: IAuthRepository = new AuthRepository()) {
+    this.authRepository = authRepository;
+  }
+
   async authenticate(promptMessage: string = 'Please authenticate'): Promise<boolean> {
     try {
-      const isAuthEnabled = await loadAuthSetup();
+      const isAuthEnabled = await this.authRepository.loadAuthSetup();
       if (!isAuthEnabled) {
         return true;
       }

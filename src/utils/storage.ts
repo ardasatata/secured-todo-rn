@@ -1,27 +1,13 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {Todo} from '../types/Todo';
+import { TodoRepository, ITodoRepository } from '../repositories/TodoRepository';
+import { Todo } from '../types/Todo';
 
-const TODOS_KEY = '@todos';
+const todoRepository: ITodoRepository = new TodoRepository();
 
 export const saveTodos = async (todos: Todo[]): Promise<void> => {
-  try {
-    const jsonValue = JSON.stringify(todos);
-    await AsyncStorage.setItem(TODOS_KEY, jsonValue);
-  } catch (e) {
-    console.error('Error saving todos:', e);
-  }
+  await todoRepository.saveTodos(todos);
 };
 
 export const loadTodos = async (): Promise<Todo[]> => {
-  try {
-    const jsonValue = await AsyncStorage.getItem(TODOS_KEY);
-    return jsonValue != null ? JSON.parse(jsonValue).map((todo: any) => ({
-      ...todo,
-      createdAt: new Date(todo.createdAt),
-    })) : [];
-  } catch (e) {
-    console.error('Error loading todos:', e);
-    return [];
-  }
+  return await todoRepository.loadTodos();
 };
 
