@@ -3,7 +3,7 @@ import {View, TouchableOpacity, StyleSheet} from 'react-native';
 import Checkbox from 'expo-checkbox';
 import {MaterialIcons} from '@expo/vector-icons';
 import {Todo} from '../types/Todo';
-import {useTheme} from '../hooks/useTheme';
+import {useTheme} from '../providers/ThemeProvider';
 import {AnimatedStrikethrough} from './AnimatedStrikethrough';
 
 // Props interface for TodoItem component
@@ -24,8 +24,8 @@ export const TodoItem: React.FC<TodoItemProps> = ({
   onDelete,
   onToggle,
 }) => {
-  const theme = useTheme();
-  const styles = createStyles(theme);
+  const { theme, isDark } = useTheme();
+  const styles = createStyles(theme, isDark);
 
   return (
     <View style={[
@@ -37,14 +37,14 @@ export const TodoItem: React.FC<TodoItemProps> = ({
         style={styles.checkbox}
         value={item.completed}
         onValueChange={() => onToggle(item.id)}
-        color={item.completed ? theme.colors.primary : undefined}
+        color={item.completed ? theme.colors.checkboxChecked : theme.colors.checkboxUnchecked}
       />
 
       {/* Todo content - tappable to start editing */}
       <TouchableOpacity
         style={[
           styles.todoContent,
-          item.completed && styles.todoItemCompleted
+          item.completed && styles.todoItemCompleted,
         ]}
         onPress={() => onEdit(item)}
       >
@@ -75,7 +75,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
   );
 };
 
-const createStyles = (theme: any) => StyleSheet.create({
+const createStyles = (theme: any, isDark: boolean) => StyleSheet.create({
   todoItem: {
     flexDirection: 'row',
     backgroundColor: theme.colors.white,
@@ -97,6 +97,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     width: 20,
     height: 20,
     marginRight: theme.spacing.md,
+    backgroundColor: theme.colors.surface,
   },
   todoContent: {
     flex: 1,

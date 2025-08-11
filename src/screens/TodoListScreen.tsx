@@ -17,7 +17,7 @@ import {loadTodos} from '../utils/storage';
 import {useAppDispatch, useAppSelector} from '../store/hooks';
 import {addTodo, updateTodo, toggleTodo, deleteTodo, setTodos} from '../store/todoSlice';
 import {useAuthentication} from '../hooks/useAuthentication';
-import {useTheme} from '../hooks/useTheme';
+import {useTheme} from '../providers/ThemeProvider';
 import {TodoItem} from '../components/TodoItem';
 import {TodoHeader} from '../components/TodoHeader';
 import {MaterialIcons} from '@expo/vector-icons';
@@ -31,7 +31,7 @@ export default function TodoListScreen() {
   const { authenticate, isAuthenticating } = useAuthentication();
 
   // Theme hook
-  const theme = useTheme();
+  const { theme, isDark } = useTheme();
 
   // Local component state for input and editing
   const [inputText, setInputText] = useState('');
@@ -39,7 +39,7 @@ export default function TodoListScreen() {
   const inputRef = useRef<TextInput>(null);
 
   // Create styles with theme
-  const styles = createStyles(theme);
+  const styles = createStyles(theme, isDark);
 
   // Load todos from storage on component mount
   useEffect(() => {
@@ -227,7 +227,7 @@ export default function TodoListScreen() {
   );
 }
 
-const createStyles = (theme: any) => StyleSheet.create({
+const createStyles = (theme: any, isDark: boolean) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,
@@ -271,21 +271,25 @@ const createStyles = (theme: any) => StyleSheet.create({
     backgroundColor: 'transparent',
   },
   actionButton: {
-    backgroundColor: theme.colors.primary,
+    backgroundColor: isDark ? theme.colors.black : theme.colors.primary,
     paddingHorizontal: theme.spacing.componentPadding,
     paddingVertical: theme.spacing.buttonPadding,
     borderRadius: theme.spacing.borderRadius.sm,
     marginLeft: theme.spacing.sm,
+    borderWidth: isDark ? 1 : 0,
+    borderColor: isDark ? theme.colors.borderLight : 'transparent',
   },
   updateButton: {
-    backgroundColor: theme.colors.primary,
+    backgroundColor: isDark ? theme.colors.black : theme.colors.primary,
+    borderWidth: isDark ? 1 : 0,
+    borderColor: isDark ? theme.colors.borderLight : 'transparent',
   },
   buttonDisabled: {
     backgroundColor: theme.colors.disabled,
     opacity: 0.6,
   },
   actionButtonText: {
-    color: theme.colors.onPrimary,
+    color: isDark ? theme.colors.white : theme.colors.onPrimary,
     ...theme.typography.button,
   },
   cancelButton: {

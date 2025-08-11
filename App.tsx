@@ -1,10 +1,10 @@
 import React, {useState, useEffect} from 'react';
-import {StatusBar, useColorScheme} from 'react-native';
+import {StatusBar} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {Provider} from 'react-redux';
 import {store} from './src/store/store';
-import {ThemeProvider} from './src/providers/ThemeProvider';
+import {ThemeProvider, useTheme} from './src/providers/ThemeProvider';
 import AuthSetupScreen from './src/screens/AuthSetupScreen';
 import TodoListScreen from './src/screens/TodoListScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
@@ -12,8 +12,8 @@ import {loadAuthSetup} from './src/utils/authStorage';
 
 const Stack = createStackNavigator();
 
-function App() {
-  const isDarkMode = useColorScheme() === 'dark';
+const AppContent = () => {
+  const { isDark, theme } = useTheme();
   const [isAuthSetup, setIsAuthSetup] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -41,10 +41,12 @@ function App() {
   }
 
   return (
-    <Provider store={store}>
-      <ThemeProvider>
-        <NavigationContainer>
-        <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+    <>
+      <StatusBar
+        barStyle={isDark ? 'light-content' : 'dark-content'}
+        backgroundColor={theme.colors.background}
+      />
+      <NavigationContainer>
         <Stack.Navigator>
           {!isAuthSetup ? (
             <Stack.Screen
@@ -68,13 +70,28 @@ function App() {
                 options={{
                   title: 'Settings',
                   headerBackTitle: '',
-                  headerTintColor: '#000000',
+                  headerTintColor: theme.colors.primary,
+                  headerStyle: {
+                    backgroundColor: theme.colors.background,
+                  },
+                  headerTitleStyle: {
+                    color: theme.colors.onBackground,
+                  },
                 }}
               />
             </>
           )}
         </Stack.Navigator>
-        </NavigationContainer>
+      </NavigationContainer>
+    </>
+  );
+};
+
+function App() {
+  return (
+    <Provider store={store}>
+      <ThemeProvider>
+        <AppContent />
       </ThemeProvider>
     </Provider>
   );

@@ -7,14 +7,16 @@ import {
   SafeAreaView,
   Switch,
   Alert,
-  ScrollView,
+  ScrollView, Platform,
 } from 'react-native';
 import * as LocalAuthentication from 'expo-local-authentication';
 import {saveAuthSetup, loadAuthSetup} from '../utils/authStorage';
-import {useTheme} from '../hooks/useTheme';
+import {useTheme, useThemeContext} from '../hooks/useTheme';
+import {ThemeMode} from '../utils/themeStorage';
 
 export default function SettingsScreen() {
   const theme = useTheme();
+  const { isDark, themeMode, setThemeMode } = useThemeContext();
   const styles = createStyles(theme);
 
   const [biometricEnabled, setBiometricEnabled] = useState(false);
@@ -107,6 +109,48 @@ export default function SettingsScreen() {
   };
 
 
+  const handleThemeModeChange = (mode: ThemeMode) => {
+    setThemeMode(mode);
+  };
+
+  const getThemeModeText = () => {
+    switch (themeMode) {
+      case 'auto':
+        return `Auto (${isDark ? 'Dark' : 'Light'})`;
+      case 'light':
+        return 'Light';
+      case 'dark':
+        return 'Dark';
+      default:
+        return 'Auto';
+    }
+  };
+
+  const showThemeOptions = () => {
+    Alert.alert(
+      'Theme',
+      'Choose your preferred theme',
+      [
+        {
+          text: 'Auto (Follow System)',
+          onPress: () => handleThemeModeChange('auto'),
+        },
+        {
+          text: 'Light',
+          onPress: () => handleThemeModeChange('light'),
+        },
+        {
+          text: 'Dark',
+          onPress: () => handleThemeModeChange('dark'),
+        },
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+      ]
+    );
+  };
+
   const resetSettings = async () => {
     Alert.alert(
       'Reset Settings',
@@ -144,8 +188,8 @@ export default function SettingsScreen() {
               value={biometricEnabled}
               onValueChange={toggleBiometric}
               disabled={!hasHardware}
-              trackColor={{false: theme.colors.surface, true: theme.colors.primary}}
-              thumbColor={theme.colors.surface}
+              trackColor={{false: Platform.OS === 'android' ? theme.colors.switchTrack : theme.colors.surface, true: Platform.OS === 'android' ? theme.colors.switchTrack : theme.colors.primary}}
+              thumbColor={Platform.OS === 'android' ? theme.colors.switchThumb : theme.colors.surface}
             />
           </View>
 
@@ -156,6 +200,18 @@ export default function SettingsScreen() {
               <Text style={styles.settingDescription}>{biometricType}</Text>
             </View>
           </View>
+        </View>
+
+        {/* Appearance Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Appearance</Text>
+
+          <TouchableOpacity style={styles.settingItem} onPress={showThemeOptions}>
+            <View style={styles.settingInfo}>
+              <Text style={styles.settingLabel}>Theme</Text>
+              <Text style={styles.settingDescription}>{getThemeModeText()}</Text>
+            </View>
+          </TouchableOpacity>
         </View>
 
         {/* General Section */}

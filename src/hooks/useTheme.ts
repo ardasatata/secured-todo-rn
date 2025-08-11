@@ -4,3 +4,7 @@ export const useTheme = () => {
   const { theme } = useThemeFromProvider();
   return theme;
 };
+
+export const useThemeContext = () => {
+  return useThemeFromProvider();
+};
