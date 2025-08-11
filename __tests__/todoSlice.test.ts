@@ -1,6 +1,7 @@
 import todoReducer, {
   addTodo,
   updateTodo,
+  toggleTodo,
   deleteTodo,
   setTodos,
   setLoading,
@@ -12,6 +13,7 @@ import {Todo} from '../src/types/Todo';
 const mockTodo: Todo = {
   id: '1',
   text: 'Test todo',
+  completed: false,
   createdAt: new Date('2023-01-01'),
 };
 
@@ -62,6 +64,31 @@ describe('todoSlice', () => {
 
     expect(actual.todos[0].text).toBe(updatedText);
     expect(actual.todos[0].id).toBe('1');
+    expect(actual.error).toBeNull();
+  });
+
+  // Test toggleTodo action
+  it('should handle toggleTodo', () => {
+    const previousState = {
+      ...initialState,
+      todos: [mockTodo],
+    };
+    const actual = todoReducer(previousState, toggleTodo('1'));
+
+    expect(actual.todos[0].completed).toBe(true);
+    expect(actual.error).toBeNull();
+  });
+
+  // Test toggleTodo with already completed todo
+  it('should toggle completed todo back to incomplete', () => {
+    const completedTodo = { ...mockTodo, completed: true };
+    const previousState = {
+      ...initialState,
+      todos: [completedTodo],
+    };
+    const actual = todoReducer(previousState, toggleTodo('1'));
+
+    expect(actual.todos[0].completed).toBe(false);
     expect(actual.error).toBeNull();
   });
 

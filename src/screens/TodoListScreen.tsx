@@ -14,7 +14,7 @@ import {
 import {Todo} from '../types/Todo';
 import {loadTodos} from '../utils/storage';
 import {useAppDispatch, useAppSelector} from '../store/hooks';
-import {addTodo, updateTodo, deleteTodo, setTodos} from '../store/todoSlice';
+import {addTodo, updateTodo, toggleTodo, deleteTodo, setTodos} from '../store/todoSlice';
 import {useAuthentication} from '../hooks/useAuthentication';
 import {TodoItem} from '../components/TodoItem';
 
@@ -118,6 +118,18 @@ export default function TodoListScreen() {
     setInputText('');
   };
 
+  // Toggle todo completion with authentication check
+  const handleToggleTodo = async (id: string) => {
+    const isAuthenticated = await authenticate('Authenticate to toggle todo completion');
+    if (!isAuthenticated) {
+      return;
+    }
+    dispatch(toggleTodo(id));
+  };
+
+  // Calculate remaining todos count
+  const remainingTodos = todos.filter(todo => !todo.completed).length;
+
   // Render function for FlatList - now uses extracted TodoItem component
   const renderTodoItem = ({item}: {item: Todo}) => (
     <TodoItem
@@ -125,28 +137,37 @@ export default function TodoListScreen() {
       isEditing={editingId === item.id}
       onEdit={startEditing}
       onDelete={handleDeleteTodo}
+      onToggle={handleToggleTodo}
     />
   );
 
   return (
     <SafeAreaView style={styles.container}>
-        <KeyboardAvoidingView
-          style={styles.keyboardContainer}
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        >
+      <KeyboardAvoidingView
+        style={styles.keyboardContainer}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 90}
+      >
+        {/* Remaining todos counter */}
+        <View style={styles.counterContainer}>
+          <Text style={styles.counterText}>
+            Your remaining todos: {remainingTodos}
+          </Text>
+        </View>
 
-          <FlatList
-            data={todos}
-            renderItem={renderTodoItem}
-            keyExtractor={item => item.id}
-            style={styles.list}
-            contentContainerStyle={todos.length === 0 ? styles.emptyList : undefined}
-            ListEmptyComponent={
-              <Text style={styles.emptyText}>No todos yet. Add one below!</Text>
-            }
-          />
+        <FlatList
+          data={todos}
+          renderItem={renderTodoItem}
+          keyExtractor={item => item.id}
+          style={styles.list}
+          contentContainerStyle={todos.length === 0 ? styles.emptyList : undefined}
+          ListEmptyComponent={
+            <Text style={styles.emptyText}>No todos yet. Add one below!</Text>
+          }
+        />
 
-          <View style={styles.inputContainer}>
+        <View style={styles.inputContainer}>
+          <View style={styles.inputRow}>
             <TextInput
               style={styles.textInput}
               placeholder={editingId ? 'Update todo...' : 'Add a new todo...'}
@@ -154,6 +175,8 @@ export default function TodoListScreen() {
               onChangeText={setInputText}
               onSubmitEditing={editingId ? handleUpdateTodo : handleAddTodo}
               returnKeyType={editingId ? 'done' : 'send'}
+              multiline={true}
+              maxLength={200}
             />
             <TouchableOpacity
               style={[styles.actionButton, editingId && styles.updateButton, isAuthenticating && styles.buttonDisabled]}
@@ -164,17 +187,18 @@ export default function TodoListScreen() {
                 {editingId ? 'Update' : 'Add'}
               </Text>
             </TouchableOpacity>
-            {editingId && (
-              <TouchableOpacity
-                style={styles.cancelButton}
-                onPress={cancelEditing}
-              >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
-              </TouchableOpacity>
-            )}
           </View>
-        </KeyboardAvoidingView>
-      </SafeAreaView>
+          {editingId && (
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={cancelEditing}
+            >
+              <Text style={styles.cancelButtonText}>Cancel</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
@@ -201,11 +225,21 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   inputContainer: {
-    flexDirection: 'row',
     padding: 20,
     backgroundColor: '#fff',
     borderTopWidth: 1,
     borderTopColor: '#e0e0e0',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: -2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 8,
+  },
+  inputRow: {
+    flexDirection: 'row',
     alignItems: 'flex-end',
   },
   textInput: {
@@ -216,7 +250,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: 12,
     fontSize: 16,
+    minHeight: 45,
     maxHeight: 100,
+    textAlignVertical: 'top',
   },
   actionButton: {
     backgroundColor: '#007AFF',
@@ -242,11 +278,25 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: 12,
     borderRadius: 8,
-    marginLeft: 5,
+    marginTop: 10,
+    alignSelf: 'flex-start',
   },
   cancelButtonText: {
     color: '#fff',
     fontSize: 14,
     fontWeight: '600',
+  },
+  counterContainer: {
+    backgroundColor: '#fff',
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+  },
+  counterText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    textAlign: 'center',
   },
 });

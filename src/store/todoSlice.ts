@@ -32,6 +32,7 @@ const todoSlice = createSlice({
       const newTodo: Todo = {
         id: Date.now().toString(),
         text: action.payload.text,
+        completed: false,
         createdAt: new Date(),
       };
       state.todos.push(newTodo);
@@ -43,6 +44,15 @@ const todoSlice = createSlice({
       const todoIndex = state.todos.findIndex(todo => todo.id === action.payload.id);
       if (todoIndex !== -1) {
         state.todos[todoIndex].text = action.payload.text;
+        state.error = null;
+      }
+    },
+
+    // Toggle todo completion status
+    toggleTodo: (state, action: PayloadAction<string>) => {
+      const todoIndex = state.todos.findIndex(todo => todo.id === action.payload);
+      if (todoIndex !== -1) {
+        state.todos[todoIndex].completed = !state.todos[todoIndex].completed;
         state.error = null;
       }
     },
@@ -70,6 +80,7 @@ export const {
   setTodos,
   addTodo,
   updateTodo,
+  toggleTodo,
   deleteTodo,
   setLoading,
   setError,
