@@ -178,7 +178,7 @@ export default function TodoListScreen() {
           }
           ListFooterComponent={
             <View style={styles.counterContainer}>
-              <Text style={styles.counterText}>
+              <Text style={styles.counterText} testID="remaining-todos-count">
               Your remaining todos: {remainingTodos}
               </Text>
             </View>
@@ -198,11 +198,13 @@ export default function TodoListScreen() {
               returnKeyType={editingId ? 'done' : 'send'}
               multiline={true}
               maxLength={200}
+              testID="todo-input"
             />
             <TouchableOpacity
               style={[styles.actionButton, editingId && styles.updateButton, isAuthenticating && styles.buttonDisabled]}
               onPress={editingId ? handleUpdateTodo : handleAddTodo}
               disabled={isAuthenticating}
+              testID={editingId ? 'update-todo-button' : 'add-todo-button'}
             >
               <Text style={styles.actionButtonText}>
                 {editingId ? 'Update' : 'Add'}
@@ -212,6 +214,7 @@ export default function TodoListScreen() {
               <TouchableOpacity
                 style={styles.cancelButton}
                 onPress={cancelEditing}
+                testID="cancel-edit-button"
               >
                 <MaterialIcons
                   name="close"

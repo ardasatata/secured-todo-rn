@@ -38,6 +38,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
         value={item.completed}
         onValueChange={() => onToggle(item.id)}
         color={item.completed ? theme.colors.checkboxChecked : theme.colors.checkboxUnchecked}
+        testID={`todo-checkbox-${item.id}`}
       />
 
       {/* Todo content - tappable to start editing */}
@@ -47,6 +48,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
           item.completed && styles.todoItemCompleted,
         ]}
         onPress={() => onEdit(item)}
+        testID={`todo-text-${item.id}`}
       >
         <AnimatedStrikethrough
           isCompleted={item.completed}
@@ -64,6 +66,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
       <TouchableOpacity
         style={styles.deleteButton}
         onPress={() => onDelete(item.id)}
+        testID={`delete-todo-${item.id}`}
       >
         <MaterialIcons
           name="close"

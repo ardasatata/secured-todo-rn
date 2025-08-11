@@ -1,0 +1,61 @@
+appId: com.pdtest
+---
+# Todo CRUD Flow Test (assumes authentication is disabled)
+- launchApp
+
+# Test 1: Add a new todo
+- tapOn:
+    id: "todo-input"
+- inputText: "Buy groceries"
+- tapOn:
+    id: "add-todo-button"
+- assertVisible: "Buy groceries"
+- assertVisible: "Your remaining todos: 1"
+
+# Test 2: Add another todo
+- tapOn:
+    id: "todo-input"
+- inputText: "Walk the dog"
+- tapOn:
+    id: "add-todo-button"
+- assertVisible: "Walk the dog"
+- assertVisible: "Your remaining todos: 2"
+
+# Test 3: Mark first todo as complete (tap checkbox near "Buy groceries")
+- tapOn:
+    id: "todo-checkbox-0"
+- assertVisible: "Your remaining todos: 1"
+
+# Test 4: Edit a todo
+- tapOn:
+    id: "todo-text-1"
+- assertVisible: "Update todo..."
+- eraseText
+- inputText: "Take dog to vet"
+- tapOn:
+    id: "update-todo-button"
+- assertVisible: "Take dog to vet"
+
+# Test 5: Cancel editing
+- tapOn:
+    id: "todo-text-.*"
+    index: 1
+- assertVisible: "Update todo..."
+- inputText: " - cancelled"
+- tapOn:
+    id: "cancel-edit-button"
+- assertVisible: "Take dog to vet"
+- assertNotVisible: "Take dog to vet - cancelled"
+
+# Test 6: Delete a todo
+- tapOn:
+    id: "delete-todo-.*"
+    index: 0
+- assertNotVisible: "Buy groceries"
+- assertVisible: "Your remaining todos: 1"
+
+# Test 7: Complete remaining todo
+- tapOn:
+    id: "todo-checkbox-.*"
+    index: 0
+- assertVisible: "Your remaining todos: 0"

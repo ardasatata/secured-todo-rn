@@ -1,0 +1,42 @@
+appId: com.pdtest
+---
+# Theme Toggle Flow Test
+- launchApp
+
+# Navigate to Settings screen
+- tapOn:
+    id: "settings-button"
+
+# Test 1: Verify current theme selector is visible
+- assertVisible: "Theme"
+- assertVisible:
+    id: "theme-selector"
+
+# Test 2: Open theme options
+- tapOn:
+    id: "theme-selector"
+- assertVisible: "Choose your preferred theme"
+
+# Test 3: Select Dark theme
+- tapOn:
+    text: "Dark"
+- assertVisible: "Theme"
+- assertVisible: "Dark"
+
+# Test 4: Switch to Light theme
+- tapOn:
+    id: "theme-selector"
+- tapOn:
+    text: "Light"
+- assertVisible: "Light"
+
+# Test 5: Switch to Auto theme
+- tapOn:
+    id: "theme-selector"
+- tapOn:
+    text: "Auto (Follow System)"
+- assertVisible: "Auto"
+
+# Navigate back to main screen to verify theme persists  
+- pressKey: Back
+- assertVisible: "Add a new todo..."

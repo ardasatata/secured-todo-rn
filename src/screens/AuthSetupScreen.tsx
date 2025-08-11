@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import {MaterialIcons} from '@expo/vector-icons';
-import {saveAuthSetup} from '../utils/authStorage';
+import {saveAuthSetup, saveAuthEnabled} from '../utils/authStorage';
 import { IAuthenticationService } from '../interfaces/IAuthService';
 import { AuthService } from '../services/AuthService';
 import { AuthError } from '../types/Auth';
@@ -36,6 +36,7 @@ export default function AuthSetupScreen({onAuthSetup, authService = new AuthServ
           [
             {text: 'OK', onPress: async () => {
               await saveAuthSetup(true);
+              await saveAuthEnabled(true);
               onAuthSetup();
             }},
           ]
@@ -52,6 +53,7 @@ export default function AuthSetupScreen({onAuthSetup, authService = new AuthServ
             {text: 'Cancel', style: 'cancel'},
             {text: 'Demo Mode', onPress: async () => {
               await saveAuthSetup(true);
+              await saveAuthEnabled(true);
               onAuthSetup();
             }},
           ]
@@ -64,6 +66,7 @@ export default function AuthSetupScreen({onAuthSetup, authService = new AuthServ
 
       if (result.success) {
         await saveAuthSetup(true);
+        await saveAuthEnabled(true);
         Alert.alert('Success', 'Authentication has been set up successfully!', [
           {text: 'OK', onPress: onAuthSetup},
         ]);
@@ -81,6 +84,7 @@ export default function AuthSetupScreen({onAuthSetup, authService = new AuthServ
           {text: 'Cancel', style: 'cancel'},
           {text: 'Demo Mode', onPress: async () => {
             await saveAuthSetup(true);
+            await saveAuthEnabled(true);
             onAuthSetup();
           }},
         ]

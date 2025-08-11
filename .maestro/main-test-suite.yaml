@@ -1,0 +1,12 @@
+appId: com.pdtest
+---
+# Main test suite - todo app flows (assumes authentication is disabled)
+# For authentication tests, enable biometric auth in settings first
+
+## 1. Todo CRUD test (core functionality)
+- runFlow:
+    file: todo-crud-flow.yaml
+
+## 2. Theme toggle test (settings functionality) 
+- runFlow:
+    file: theme-toggle-flow.yaml

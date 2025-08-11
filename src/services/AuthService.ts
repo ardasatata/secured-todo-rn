@@ -12,7 +12,7 @@ export class AuthService implements IAuthenticationService {
 
   async authenticate(promptMessage: string = 'Please authenticate'): Promise<boolean> {
     try {
-      const isAuthEnabled = await this.authRepository.loadAuthSetup();
+      const isAuthEnabled = await this.authRepository.loadAuthEnabled();
       if (!isAuthEnabled) {
         return true;
       }

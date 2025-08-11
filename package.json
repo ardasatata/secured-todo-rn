@@ -9,7 +9,9 @@
     "start": "react-native start",
     "test": "jest",
     "ios:release": "react-native run-ios --mode=\"Release\"",
-    "android:release": "react-native run-android --mode=\"release\""
+    "android:release": "react-native run-android --mode=\"release\"",
+    "test:e2e:ios": "maestro test .maestro --format junit",
+    "test:e2e:android": "maestro test .maestro --format junit"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",

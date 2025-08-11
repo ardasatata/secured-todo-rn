@@ -10,7 +10,7 @@ import {
   ScrollView, Platform,
 } from 'react-native';
 import * as LocalAuthentication from 'expo-local-authentication';
-import {saveAuthSetup, loadAuthSetup} from '../utils/authStorage';
+import {saveAuthSetup, loadAuthSetup, saveAuthEnabled, loadAuthEnabled} from '../utils/authStorage';
 import {useTheme, useThemeContext} from '../hooks/useTheme';
 import {ThemeMode} from '../utils/themeStorage';
 
@@ -29,8 +29,8 @@ export default function SettingsScreen() {
 
   const initializeSettings = async () => {
     try {
-      // Check current auth setup status
-      const authEnabled = await loadAuthSetup();
+      // Check current auth enabled status (not setup status)
+      const authEnabled = await loadAuthEnabled();
       setBiometricEnabled(authEnabled);
 
       // Check device capabilities
@@ -75,7 +75,7 @@ export default function SettingsScreen() {
       }
 
       try {
-        await saveAuthSetup(true);
+        await saveAuthEnabled(true);
         setBiometricEnabled(true);
         Alert.alert('Success', 'Authentication enabled!');
       } catch (error) {
@@ -92,7 +92,7 @@ export default function SettingsScreen() {
         });
 
         if (result.success) {
-          await saveAuthSetup(false);
+          await saveAuthEnabled(false);
           setBiometricEnabled(false);
           Alert.alert('Success', 'Authentication disabled');
         } else {
@@ -162,6 +162,7 @@ export default function SettingsScreen() {
           style: 'destructive',
           onPress: async () => {
             await saveAuthSetup(false);
+            await saveAuthEnabled(false);
             setBiometricEnabled(false);
             Alert.alert('Reset Complete', 'All settings have been reset');
           },
@@ -206,7 +207,7 @@ export default function SettingsScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Appearance</Text>
 
-          <TouchableOpacity style={styles.settingItem} onPress={showThemeOptions}>
+          <TouchableOpacity style={styles.settingItem} onPress={showThemeOptions} testID="theme-selector">
             <View style={styles.settingInfo}>
               <Text style={styles.settingLabel}>Theme</Text>
               <Text style={styles.settingDescription}>{getThemeModeText()}</Text>
