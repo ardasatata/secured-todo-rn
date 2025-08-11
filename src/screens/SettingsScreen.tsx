@@ -191,6 +191,7 @@ export default function SettingsScreen() {
               disabled={!hasHardware}
               trackColor={{false: Platform.OS === 'android' ? theme.colors.switchTrack : theme.colors.surface, true: Platform.OS === 'android' ? theme.colors.switchTrack : theme.colors.primary}}
               thumbColor={Platform.OS === 'android' ? theme.colors.switchThumb : theme.colors.surface}
+              testID="biometric-toggle"
             />
           </View>
 

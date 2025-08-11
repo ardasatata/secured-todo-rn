@@ -147,13 +147,14 @@ export default function TodoListScreen() {
   const remainingTodos = todos.filter(todo => !todo.completed).length;
 
   // Render function for FlatList - now uses extracted TodoItem component
-  const renderTodoItem = ({item}: {item: Todo}) => (
+  const renderTodoItem = ({item, index}: {item: Todo, index: number}) => (
     <TodoItem
       item={item}
       isEditing={editingId === item.id}
       onEdit={startEditing}
       onDelete={handleDeleteTodo}
       onToggle={handleToggleTodo}
+      index={index}
     />
   );
 

@@ -13,6 +13,7 @@ interface TodoItemProps {
   onEdit: (todo: Todo) => void;
   onDelete: (id: string) => void;
   onToggle: (id: string) => void;
+  index?: number; // Optional index prop for testing purposes
 }
 
 // Reusable TodoItem component
@@ -23,6 +24,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
   onEdit,
   onDelete,
   onToggle,
+  index,
 }) => {
   const { theme, isDark } = useTheme();
   const styles = createStyles(theme, isDark);
@@ -38,7 +40,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
         value={item.completed}
         onValueChange={() => onToggle(item.id)}
         color={item.completed ? theme.colors.checkboxChecked : theme.colors.checkboxUnchecked}
-        testID={`todo-checkbox-${item.id}`}
+        testID={`todo-checkbox-${index}`}
       />
 
       {/* Todo content - tappable to start editing */}
@@ -48,7 +50,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
           item.completed && styles.todoItemCompleted,
         ]}
         onPress={() => onEdit(item)}
-        testID={`todo-text-${item.id}`}
+        testID={`todo-text-${index}`}
       >
         <AnimatedStrikethrough
           isCompleted={item.completed}
@@ -66,7 +68,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
       <TouchableOpacity
         style={styles.deleteButton}
         onPress={() => onDelete(item.id)}
-        testID={`delete-todo-${item.id}`}
+        testID={`delete-todo-${index}`}
       >
         <MaterialIcons
           name="close"
