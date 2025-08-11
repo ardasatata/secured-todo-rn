@@ -4,10 +4,12 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {Provider} from 'react-redux';
 import {store} from './src/store/store';
+import {ThemeProvider} from './src/providers/ThemeProvider';
 import AuthSetupScreen from './src/screens/AuthSetupScreen';
 import TodoListScreen from './src/screens/TodoListScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 import {loadAuthSetup} from './src/utils/authStorage';
+import {Ionicons} from '@expo/vector-icons';
 
 const Stack = createStackNavigator();
 
@@ -41,7 +43,8 @@ function App() {
 
   return (
     <Provider store={store}>
-      <NavigationContainer>
+      <ThemeProvider>
+        <NavigationContainer>
         <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
         <Stack.Navigator>
           {!isAuthSetup ? (
@@ -63,7 +66,7 @@ function App() {
                       style={{marginRight: 15, padding: 5}}
                       onPress={() => navigation.navigate('Settings')}
                     >
-                      <Text style={{fontSize: 20}}>⚙️</Text>
+                      <Ionicons name="settings-outline" size={24} color="black" />
                     </TouchableOpacity>
                   ),
                 })}
@@ -78,7 +81,8 @@ function App() {
             </>
           )}
         </Stack.Navigator>
-      </NavigationContainer>
+        </NavigationContainer>
+      </ThemeProvider>
     </Provider>
   );
 }

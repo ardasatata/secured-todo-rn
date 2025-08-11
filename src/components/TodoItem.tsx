@@ -1,6 +1,10 @@
 import React from 'react';
-import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import {View, TouchableOpacity, StyleSheet} from 'react-native';
+import Checkbox from 'expo-checkbox';
+import {MaterialIcons} from '@expo/vector-icons';
 import {Todo} from '../types/Todo';
+import {useTheme} from '../hooks/useTheme';
+import {AnimatedStrikethrough} from './AnimatedStrikethrough';
 
 // Props interface for TodoItem component
 interface TodoItemProps {
@@ -20,29 +24,34 @@ export const TodoItem: React.FC<TodoItemProps> = ({
   onDelete,
   onToggle,
 }) => {
+  const theme = useTheme();
+  const styles = createStyles(theme);
+
   return (
     <View style={[styles.todoItem, isEditing && styles.todoItemEditing]}>
       {/* Checkbox for completion toggle */}
-      <TouchableOpacity
+      <Checkbox
         style={styles.checkbox}
-        onPress={() => onToggle(item.id)}
-      >
-        <Text style={styles.checkboxText}>
-          {item.completed ? '✓' : '○'}
-        </Text>
-      </TouchableOpacity>
+        value={item.completed}
+        onValueChange={() => onToggle(item.id)}
+        color={item.completed ? theme.colors.primary : undefined}
+      />
 
       {/* Todo content - tappable to start editing */}
       <TouchableOpacity
         style={styles.todoContent}
         onPress={() => onEdit(item)}
       >
-        <Text style={[
-          styles.todoText,
-          item.completed && styles.completedText,
-        ]}>
+        <AnimatedStrikethrough
+          isCompleted={item.completed}
+          textStyle={StyleSheet.flatten([
+            styles.todoText,
+            item.completed && styles.completedText,
+          ])}
+          strikethroughColor={theme.colors.todoCompleted}
+        >
           {item.text}
-        </Text>
+        </AnimatedStrikethrough>
       </TouchableOpacity>
 
       {/* Delete button */}
@@ -50,73 +59,55 @@ export const TodoItem: React.FC<TodoItemProps> = ({
         style={styles.deleteButton}
         onPress={() => onDelete(item.id)}
       >
-        <Text style={styles.deleteButtonText}>✕</Text>
+        <MaterialIcons
+          name="close"
+          size={18}
+          color={theme.colors.onPrimary}
+        />
       </TouchableOpacity>
     </View>
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: any) => StyleSheet.create({
   todoItem: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
-    marginVertical: 4,
-    padding: 15,
-    borderRadius: 8,
+    backgroundColor: theme.colors.surface,
+    marginVertical: theme.spacing.xs,
+    padding: theme.spacing.listItemPadding,
+    borderRadius: theme.spacing.borderRadius.md,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 1,
+    shadowColor: theme.colors.shadow,
+    ...theme.spacing.shadow.small,
   },
   todoItemEditing: {
-    backgroundColor: '#e3f2fd',
-    borderColor: '#2196f3',
+    backgroundColor: theme.colors.todoEditing,
+    borderColor: theme.colors.todoEditingBorder,
     borderWidth: 2,
   },
   checkbox: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    borderWidth: 2,
-    borderColor: '#007AFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  checkboxText: {
-    fontSize: 18,
-    color: '#007AFF',
-    fontWeight: 'bold',
+    width: 20,
+    height: 20,
+    marginRight: theme.spacing.md,
   },
   todoContent: {
     flex: 1,
   },
   todoText: {
-    fontSize: 16,
-    color: '#333',
+    ...theme.typography.body,
+    color: theme.colors.onSurface,
   },
   completedText: {
-    textDecorationLine: 'line-through',
-    color: '#888',
+    color: theme.colors.todoCompleted,
     opacity: 0.7,
   },
   deleteButton: {
-    backgroundColor: '#ff4444',
+    backgroundColor: theme.colors.error,
     width: 30,
     height: 30,
-    borderRadius: 15,
+    borderRadius: theme.spacing.borderRadius.full,
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: 10,
-  },
-  deleteButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
+    marginLeft: theme.spacing.sm,
   },
 });

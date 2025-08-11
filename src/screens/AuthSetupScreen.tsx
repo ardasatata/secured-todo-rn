@@ -7,10 +7,12 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
+import {MaterialIcons} from '@expo/vector-icons';
 import {saveAuthSetup} from '../utils/authStorage';
 import { IAuthenticationService } from '../interfaces/IAuthService';
 import { AuthService } from '../services/AuthService';
 import { AuthError } from '../types/Auth';
+import {useTheme} from '../hooks/useTheme';
 
 interface Props {
   onAuthSetup: () => void;
@@ -19,6 +21,8 @@ interface Props {
 
 export default function AuthSetupScreen({onAuthSetup, authService = new AuthService()}: Props) {
   const [isLoading, setIsLoading] = useState(false);
+  const theme = useTheme();
+  const styles = createStyles(theme);
 
   const handleSetupAuth = async () => {
     setIsLoading(true);
@@ -89,7 +93,13 @@ export default function AuthSetupScreen({onAuthSetup, authService = new AuthServ
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.title}>Welcome to PdTest</Text>
+        <MaterialIcons
+          name="fingerprint"
+          size={80}
+          color={theme.colors.primary}
+          style={styles.icon}
+        />
+        <Text style={styles.title}>Secure Todo</Text>
         <Text style={styles.subtitle}>
           Set up biometric authentication to secure your todos
         </Text>
@@ -100,7 +110,7 @@ export default function AuthSetupScreen({onAuthSetup, authService = new AuthServ
           disabled={isLoading}
         >
           {isLoading ? (
-            <ActivityIndicator color="#ffffff" />
+            <ActivityIndicator color={theme.colors.onPrimary} />
           ) : (
             <Text style={styles.buttonText}>Setup Biometric Auth</Text>
           )}
@@ -110,46 +120,48 @@ export default function AuthSetupScreen({onAuthSetup, authService = new AuthServ
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: theme.colors.background,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    padding: theme.spacing.componentPadding,
   },
   content: {
     alignItems: 'center',
     maxWidth: 300,
   },
+  icon: {
+    marginBottom: theme.spacing.xl,
+  },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 10,
+    ...theme.typography.title,
+    color: theme.colors.onBackground,
+    marginBottom: theme.spacing.sm,
     textAlign: 'center',
   },
   subtitle: {
-    fontSize: 16,
-    color: '#666',
+    ...theme.typography.body,
+    color: theme.colors.textSecondary,
     textAlign: 'center',
-    marginBottom: 40,
-    lineHeight: 22,
+    marginBottom: theme.spacing.xxxl,
+    lineHeight: theme.typography.lineHeight.relaxed,
   },
   button: {
-    backgroundColor: '#007AFF',
-    paddingHorizontal: 30,
-    paddingVertical: 15,
-    borderRadius: 8,
+    marginTop: theme.spacing.xxxl,
+    backgroundColor: theme.colors.primary,
+    paddingHorizontal: theme.spacing.xxxl,
+    paddingVertical: theme.spacing.listItemPadding,
+    borderRadius: theme.spacing.borderRadius.md,
     minWidth: 200,
     alignItems: 'center',
   },
   buttonDisabled: {
-    backgroundColor: '#999',
+    backgroundColor: theme.colors.disabled,
   },
   buttonText: {
-    color: '#ffffff',
-    fontSize: 16,
-    fontWeight: '600',
+    color: theme.colors.onPrimary,
+    ...theme.typography.button,
   },
 });

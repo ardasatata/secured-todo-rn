@@ -16,6 +16,7 @@ import {loadTodos} from '../utils/storage';
 import {useAppDispatch, useAppSelector} from '../store/hooks';
 import {addTodo, updateTodo, toggleTodo, deleteTodo, setTodos} from '../store/todoSlice';
 import {useAuthentication} from '../hooks/useAuthentication';
+import {useTheme} from '../hooks/useTheme';
 import {TodoItem} from '../components/TodoItem';
 
 export default function TodoListScreen() {
@@ -26,9 +27,15 @@ export default function TodoListScreen() {
   // Authentication hook for CRUD operations
   const { authenticate, isAuthenticating } = useAuthentication();
 
+  // Theme hook
+  const theme = useTheme();
+
   // Local component state for input and editing
   const [inputText, setInputText] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
+
+  // Create styles with theme
+  const styles = createStyles(theme);
 
   // Load todos from storage on component mount
   useEffect(() => {
@@ -202,17 +209,17 @@ export default function TodoListScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: theme.colors.background,
   },
   keyboardContainer: {
     flex: 1,
   },
   list: {
     flex: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: theme.spacing.componentPadding,
   },
   emptyList: {
     flex: 1,
@@ -220,23 +227,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   emptyText: {
-    fontSize: 16,
-    color: '#999',
+    ...theme.typography.body,
+    color: theme.colors.textDisabled,
     textAlign: 'center',
   },
   inputContainer: {
-    padding: 20,
-    backgroundColor: '#fff',
+    padding: theme.spacing.componentPadding,
+    backgroundColor: theme.colors.surface,
     borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: -2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 8,
+    borderTopColor: theme.colors.border,
+    shadowColor: theme.colors.shadow,
+    ...theme.spacing.shadow.large,
   },
   inputRow: {
     flexDirection: 'row',
@@ -245,58 +246,56 @@ const styles = StyleSheet.create({
   textInput: {
     flex: 1,
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-    fontSize: 16,
+    borderColor: theme.colors.borderLight,
+    borderRadius: theme.spacing.borderRadius.md,
+    paddingHorizontal: theme.spacing.listItemPadding,
+    paddingVertical: theme.spacing.buttonPadding,
+    ...theme.typography.body,
     minHeight: 45,
     maxHeight: 100,
     textAlignVertical: 'top',
+    color: theme.colors.onSurface,
   },
   actionButton: {
-    backgroundColor: '#007AFF',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 8,
-    marginLeft: 10,
+    backgroundColor: theme.colors.primary,
+    paddingHorizontal: theme.spacing.componentPadding,
+    paddingVertical: theme.spacing.buttonPadding,
+    borderRadius: theme.spacing.borderRadius.md,
+    marginLeft: theme.spacing.sm,
   },
   updateButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: theme.colors.secondary,
   },
   buttonDisabled: {
-    backgroundColor: '#999',
+    backgroundColor: theme.colors.disabled,
     opacity: 0.6,
   },
   actionButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    color: theme.colors.onPrimary,
+    ...theme.typography.button,
   },
   cancelButton: {
-    backgroundColor: '#999',
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-    borderRadius: 8,
-    marginTop: 10,
+    backgroundColor: theme.colors.disabled,
+    paddingHorizontal: theme.spacing.listItemPadding,
+    paddingVertical: theme.spacing.buttonPadding,
+    borderRadius: theme.spacing.borderRadius.md,
+    marginTop: theme.spacing.sm,
     alignSelf: 'flex-start',
   },
   cancelButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
+    color: theme.colors.onPrimary,
+    ...theme.typography.buttonSmall,
   },
   counterContainer: {
-    backgroundColor: '#fff',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
+    backgroundColor: theme.colors.surface,
+    paddingHorizontal: theme.spacing.componentPadding,
+    paddingVertical: theme.spacing.listItemPadding,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: theme.colors.border,
   },
   counterText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
+    ...theme.typography.subtitle,
+    color: theme.colors.onSurface,
     textAlign: 'center',
   },
 });
