@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- White checkmark pattern centered -->
+    <!-- Bottom squares -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 32,74 L 40,74 L 40,82 L 32,82 Z"/>
+    <path
+        android:fillColor="#FFFFFF" 
+        android:pathData="M 24,66 L 32,66 L 32,74 L 24,74 Z"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 16,58 L 24,58 L 24,66 L 16,66 Z"/>
+    
+    <!-- Middle transition -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 40,66 L 48,66 L 48,74 L 40,74 Z"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 48,58 L 56,58 L 56,66 L 48,66 Z"/>
+    
+    <!-- Top squares -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 56,50 L 64,50 L 64,58 L 56,58 Z"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 64,42 L 72,42 L 72,50 L 64,50 Z"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 72,34 L 80,34 L 80,42 L 72,42 Z"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 80,26 L 88,26 L 88,34 L 80,34 Z"/>
+</vector>

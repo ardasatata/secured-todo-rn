@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "PdTest",
-    "slug": "pd-test",
+    "name": "Tasku",
+    "slug": "tasku",
     "version": "1.0.0",
     "orientation": "portrait",
-    "scheme": "pd-test",
+    "scheme": "tasku",
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/splash.png",
@@ -16,14 +16,14 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.pdtest.app"
+      "bundleIdentifier": "com.tasku.app"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.pdtest.app"
+      "package": "com.tasku.app"
     },
     "plugins": [
       [
@@ -34,6 +34,6 @@
       ]
     ]
   },
-  "name": "PdTest",
-  "displayName": "PdTest"
+  "name": "Tasku",
+  "displayName": "Tasku"
 }

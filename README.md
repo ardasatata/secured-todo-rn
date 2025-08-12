@@ -1,4 +1,4 @@
-# Secured Todo List Application
+# Tasku - Secured Todo List Application
 
 A React Native todo list application with biometric authentication built using Expo modules.
 
