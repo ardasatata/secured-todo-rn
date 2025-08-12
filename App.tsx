@@ -5,26 +5,51 @@ import {createStackNavigator} from '@react-navigation/stack';
 import {Provider} from 'react-redux';
 import {store} from './src/store/store';
 import {ThemeProvider, useTheme} from './src/providers/ThemeProvider';
+import {authService} from './src/services/AuthService';
 import AuthSetupScreen from './src/screens/AuthSetupScreen';
 import TodoListScreen from './src/screens/TodoListScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
-import {loadAuthSetup} from './src/utils/authStorage';
+import {loadAuthSetup, loadAuthEnabled} from './src/utils/authStorage';
 
 const Stack = createStackNavigator();
 
 const AppContent = () => {
   const { isDark, theme } = useTheme();
   const [isAuthSetup, setIsAuthSetup] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     checkAuthSetup();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const authenticateForAccess = async () => {
+    const isAuthEnabled = await loadAuthEnabled();
+    if (isAuthEnabled) {
+      // Keep trying authentication until successful
+      let authenticated = false;
+      while (!authenticated) {
+        authenticated = await authService.authenticate('Authenticate to access your todos');
+        if (!authenticated) {
+          // If user cancels, wait a bit before retrying
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+      }
+    }
+    setIsAuthenticated(true);
+  };
 
   const checkAuthSetup = async () => {
     try {
       const authSetup = await loadAuthSetup();
       setIsAuthSetup(authSetup);
+
+      if (authSetup) {
+        await authenticateForAccess();
+      } else {
+        setIsAuthenticated(false);
+      }
     } catch (error) {
       console.error('Error checking auth setup:', error);
     } finally {
@@ -32,8 +57,10 @@ const AppContent = () => {
     }
   };
 
-  const handleAuthSetup = () => {
+  const handleAuthSetup = async () => {
     setIsAuthSetup(true);
+    // After setup, check if auth should be required
+    await authenticateForAccess();
   };
 
   if (isLoading) {
@@ -55,7 +82,7 @@ const AppContent = () => {
             >
               {props => <AuthSetupScreen {...props} onAuthSetup={handleAuthSetup} />}
             </Stack.Screen>
-          ) : (
+          ) : isAuthenticated ? (
             <>
               <Stack.Screen
                 name="TodoList"
@@ -80,7 +107,7 @@ const AppContent = () => {
                 }}
               />
             </>
-          )}
+          ) : null}
         </Stack.Navigator>
       </NavigationContainer>
     </>

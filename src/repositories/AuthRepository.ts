@@ -1,5 +1,5 @@
 import { IStorage } from '../interfaces/IStorage';
-import { AsyncStorageService } from '../services/StorageService';
+import { storageService } from '../services/StorageService';
 
 export interface IAuthRepository {
   saveAuthSetup(isSetup: boolean): Promise<void>;
@@ -8,12 +8,12 @@ export interface IAuthRepository {
   loadAuthEnabled(): Promise<boolean>;
 }
 
-export class AuthRepository implements IAuthRepository {
+class AuthRepository implements IAuthRepository {
   private readonly AUTH_SETUP_KEY = '@auth_setup';
   private readonly AUTH_ENABLED_KEY = '@auth_enabled';
   private storage: IStorage;
 
-  constructor(storage: IStorage = new AsyncStorageService()) {
+  constructor(storage: IStorage = storageService) {
     this.storage = storage;
   }
 
@@ -45,3 +45,9 @@ export class AuthRepository implements IAuthRepository {
     }
   }
 }
+
+// Export singleton instance
+export const authRepository = new AuthRepository();
+
+// Also export class for testing purposes
+export { AuthRepository };

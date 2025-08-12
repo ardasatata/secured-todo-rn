@@ -1,13 +1,13 @@
 import * as LocalAuthentication from 'expo-local-authentication';
 import { IAuthenticationService } from '../interfaces/IAuthService';
 import { DeviceCapabilities, AuthResult, AuthError } from '../types/Auth';
-import { AuthRepository, IAuthRepository } from '../repositories/AuthRepository';
+import { authRepository, IAuthRepository } from '../repositories/AuthRepository';
 
-export class AuthService implements IAuthenticationService {
+class AuthService implements IAuthenticationService {
   private authRepository: IAuthRepository;
 
-  constructor(authRepository: IAuthRepository = new AuthRepository()) {
-    this.authRepository = authRepository;
+  constructor(authRepositoryInstance: IAuthRepository = authRepository) {
+    this.authRepository = authRepositoryInstance;
   }
 
   async authenticate(promptMessage: string = 'Please authenticate'): Promise<boolean> {
@@ -91,3 +91,9 @@ export class AuthService implements IAuthenticationService {
     }
   }
 }
+
+// Export singleton instance
+export const authService = new AuthService();
+
+// Also export class for testing purposes
+export { AuthService };

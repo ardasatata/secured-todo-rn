@@ -1,6 +1,4 @@
-import { AuthRepository, IAuthRepository } from '../repositories/AuthRepository';
-
-const authRepository: IAuthRepository = new AuthRepository();
+import { authRepository } from '../repositories/AuthRepository';
 
 export const saveAuthSetup = async (isSetup: boolean): Promise<void> => {
   await authRepository.saveAuthSetup(isSetup);

@@ -9,17 +9,15 @@ import {
 } from 'react-native';
 import {MaterialIcons} from '@expo/vector-icons';
 import {saveAuthSetup, saveAuthEnabled} from '../utils/authStorage';
-import { IAuthenticationService } from '../interfaces/IAuthService';
-import { AuthService } from '../services/AuthService';
+import {authService} from '../services/AuthService';
 import { AuthError } from '../types/Auth';
 import {useTheme} from '../hooks/useTheme';
 
 interface Props {
   onAuthSetup: () => void;
-  authService?: IAuthenticationService;
 }
 
-export default function AuthSetupScreen({onAuthSetup, authService = new AuthService()}: Props) {
+export default function AuthSetupScreen({onAuthSetup}: Props) {
   const [isLoading, setIsLoading] = useState(false);
   const theme = useTheme();
   const styles = createStyles(theme);

@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { Alert } from 'react-native';
-import { IAuthenticationService } from '../interfaces/IAuthService';
-import { AuthService } from '../services/AuthService';
+import { authService } from '../services/AuthService';
 
-export const useAuthentication = (authService: IAuthenticationService = new AuthService()) => {
+export const useAuthentication = () => {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
 
   const authenticate = async (promptMessage: string = 'Please authenticate'): Promise<boolean> => {

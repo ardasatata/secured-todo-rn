@@ -1,6 +1,4 @@
-import { TodoRepository, ITodoRepository } from '../repositories/TodoRepository';
-
-const todoRepository: ITodoRepository = new TodoRepository();
+import { todoRepository } from '../repositories/TodoRepository';
 
 export const storageMiddleware = (store: any) => (next: any) => (action: any) => {
   const result = next(action);

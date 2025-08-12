@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { IStorage } from '../interfaces/IStorage';
 
-export class AsyncStorageService implements IStorage {
+class AsyncStorageService implements IStorage {
   async setItem<T>(key: string, value: T): Promise<void> {
     try {
       const serializedValue = JSON.stringify(value);
@@ -43,3 +43,9 @@ export class AsyncStorageService implements IStorage {
     }
   }
 }
+
+// Export singleton instance
+export const storageService = new AsyncStorageService();
+
+// Also export class for testing purposes
+export { AsyncStorageService };

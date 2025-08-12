@@ -1,5 +1,5 @@
 import { IStorage } from '../interfaces/IStorage';
-import { AsyncStorageService } from '../services/StorageService';
+import { storageService } from '../services/StorageService';
 import { Todo } from '../types/Todo';
 
 export interface ITodoRepository {
@@ -7,11 +7,11 @@ export interface ITodoRepository {
   loadTodos(): Promise<Todo[]>;
 }
 
-export class TodoRepository implements ITodoRepository {
+class TodoRepository implements ITodoRepository {
   private readonly TODOS_KEY = '@todos';
   private storage: IStorage;
 
-  constructor(storage: IStorage = new AsyncStorageService()) {
+  constructor(storage: IStorage = storageService) {
     this.storage = storage;
   }
 
@@ -36,3 +36,9 @@ export class TodoRepository implements ITodoRepository {
     }
   }
 }
+
+// Export singleton instance
+export const todoRepository = new TodoRepository();
+
+// Also export class for testing purposes
+export { TodoRepository };
