@@ -16,7 +16,6 @@ const Stack = createStackNavigator();
 const AppContent = () => {
   const { isDark, theme } = useTheme();
   const [isAuthSetup, setIsAuthSetup] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -37,7 +36,6 @@ const AppContent = () => {
         }
       }
     }
-    setIsAuthenticated(true);
   };
 
   const checkAuthSetup = async () => {
@@ -47,8 +45,6 @@ const AppContent = () => {
 
       if (authSetup) {
         await authenticateForAccess();
-      } else {
-        setIsAuthenticated(false);
       }
     } catch (error) {
       console.error('Error checking auth setup:', error);
@@ -82,7 +78,7 @@ const AppContent = () => {
             >
               {props => <AuthSetupScreen {...props} onAuthSetup={handleAuthSetup} />}
             </Stack.Screen>
-          ) : isAuthenticated ? (
+          ) : (
             <>
               <Stack.Screen
                 name="TodoList"
@@ -107,7 +103,7 @@ const AppContent = () => {
                 }}
               />
             </>
-          ) : null}
+          )}
         </Stack.Navigator>
       </NavigationContainer>
     </>
