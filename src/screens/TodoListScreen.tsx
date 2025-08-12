@@ -9,26 +9,31 @@ import {
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
-  Alert,
   Keyboard,
 } from 'react-native';
 import {Todo} from '../types/Todo';
 import {loadTodos} from '../utils/storage';
 import {useAppDispatch, useAppSelector} from '../store/hooks';
-import {addTodo, updateTodo, toggleTodo, deleteTodo, setTodos} from '../store/todoSlice';
-import {useAuthentication} from '../hooks/useAuthentication';
+import {setTodos} from '../store/todoSlice';
+import {useTodoOperations} from '../hooks/useTodoOperations';
 import {useTheme} from '../providers/ThemeProvider';
 import {TodoItem} from '../components/TodoItem';
 import {TodoHeader} from '../components/TodoHeader';
 import {MaterialIcons} from '@expo/vector-icons';
 
 export default function TodoListScreen() {
-  // Get todos from Redux store instead of local state
+  // Get todos from Redux store
   const todos = useAppSelector(state => state.todos.todos);
   const dispatch = useAppDispatch();
 
-  // Authentication hook for CRUD operations
-  const { authenticate, isAuthenticating } = useAuthentication();
+  // Todo operations with built-in authentication
+  const {
+    handleAddTodo,
+    handleUpdateTodo,
+    handleDeleteTodo,
+    handleToggleTodo,
+    isOperating,
+  } = useTodoOperations();
 
   // Theme hook
   const { theme, isDark } = useTheme();
@@ -50,73 +55,30 @@ export default function TodoListScreen() {
     loadInitialTodos();
   }, [dispatch]);
 
-  // Add todo with authentication check
-  const handleAddTodo = async () => {
-    if (inputText.trim() === '') {
-      Alert.alert('Error', 'Please enter a todo item');
-      return;
-    }
-
-    // Authenticate before adding todo (as required by assignment)
-    const isAuthenticated = await authenticate('Authenticate to add todo');
-    if (!isAuthenticated) {
-      return; // Don't proceed if authentication failed
-    }
-
-    // Dispatch action to Redux store
-    dispatch(addTodo({ text: inputText.trim() }));
+  // Handle add todo
+  const onAddTodo = async () => {
+    await handleAddTodo(inputText);
     setInputText('');
   };
 
-  // Update todo with authentication check
-  const handleUpdateTodo = async () => {
-    if (inputText.trim() === '' || !editingId) {
-      Alert.alert('Error', 'Please enter a todo item');
+  // Handle update todo
+  const onUpdateTodo = async () => {
+    if (!editingId) {
       return;
     }
-
-    // Authenticate before updating todo (as required by assignment)
-    const isAuthenticated = await authenticate('Authenticate to update todo');
-    if (!isAuthenticated) {
-      return; // Don't proceed if authentication failed
-    }
-
-    // Dispatch update action to Redux store
-    dispatch(updateTodo({ id: editingId, text: inputText.trim() }));
-
+    await handleUpdateTodo(editingId, inputText);
     setInputText('');
     setEditingId(null);
   };
 
-  // Delete todo with authentication check
-  const handleDeleteTodo = async (id: string) => {
-    Alert.alert(
-      'Delete Todo',
-      'Are you sure you want to delete this todo?',
-      [
-        {text: 'Cancel', style: 'cancel'},
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            // Authenticate before deleting todo (as required by assignment)
-            const isAuthenticated = await authenticate('Authenticate to delete todo');
-            if (!isAuthenticated) {
-              return; // Don't proceed if authentication failed
-            }
-
-            // Dispatch delete action to Redux store
-            dispatch(deleteTodo(id));
-
-            // Clear editing state if we're deleting the todo being edited
-            if (editingId === id) {
-              setEditingId(null);
-              setInputText('');
-            }
-          },
-        },
-      ]
-    );
+  // Handle delete todo with cleanup
+  const onDeleteTodo = async (id: string) => {
+    await handleDeleteTodo(id);
+    // Clear editing state if we're deleting the todo being edited
+    if (editingId === id) {
+      setEditingId(null);
+      setInputText('');
+    }
   };
 
   const startEditing = (todo: Todo) => {
@@ -134,14 +96,6 @@ export default function TodoListScreen() {
     Keyboard.dismiss();
   };
 
-  // Toggle todo completion with authentication check
-  const handleToggleTodo = async (id: string) => {
-    const isAuthenticated = await authenticate('Authenticate to toggle todo completion');
-    if (!isAuthenticated) {
-      return;
-    }
-    dispatch(toggleTodo(id));
-  };
 
   // Calculate remaining todos count
   const remainingTodos = todos.filter(todo => !todo.completed).length;
@@ -152,7 +106,7 @@ export default function TodoListScreen() {
       item={item}
       isEditing={editingId === item.id}
       onEdit={startEditing}
-      onDelete={handleDeleteTodo}
+      onDelete={onDeleteTodo}
       onToggle={handleToggleTodo}
       index={index}
     />
@@ -195,16 +149,16 @@ export default function TodoListScreen() {
               placeholderTextColor={theme.colors.textSecondary}
               value={inputText}
               onChangeText={setInputText}
-              onSubmitEditing={editingId ? handleUpdateTodo : handleAddTodo}
+              onSubmitEditing={editingId ? onUpdateTodo : onAddTodo}
               returnKeyType={editingId ? 'done' : 'send'}
               multiline={true}
               maxLength={200}
               testID="todo-input"
             />
             <TouchableOpacity
-              style={[styles.actionButton, editingId && styles.updateButton, isAuthenticating && styles.buttonDisabled]}
-              onPress={editingId ? handleUpdateTodo : handleAddTodo}
-              disabled={isAuthenticating}
+              style={[styles.actionButton, editingId && styles.updateButton, isOperating && styles.buttonDisabled]}
+              onPress={editingId ? onUpdateTodo : onAddTodo}
+              disabled={isOperating}
               testID={editingId ? 'update-todo-button' : 'add-todo-button'}
             >
               <Text style={styles.actionButtonText}>

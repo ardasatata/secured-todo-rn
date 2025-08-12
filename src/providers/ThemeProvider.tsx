@@ -2,12 +2,12 @@ import React, { createContext, useContext, ReactNode, useState, useEffect } from
 import { useColorScheme } from 'react-native';
 import { spacing } from '../theme/spacing';
 import { typography } from '../theme/typography';
-import { lightColors } from '../theme/lightColors';
+import { colors } from '../theme/colors';
 import { darkColors } from '../theme/darkColors';
 import { ThemeMode, loadThemeMode, saveThemeMode } from '../utils/themeStorage';
 
 export interface Theme {
-  colors: typeof lightColors | typeof darkColors;
+  colors: typeof colors | typeof darkColors;
   spacing: typeof spacing;
   typography: typeof typography;
 }
@@ -34,7 +34,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
 
   // Create theme object
   const theme: Theme = {
-    colors: shouldUseDark ? darkColors : lightColors,
+    colors: shouldUseDark ? darkColors : colors,
     spacing,
     typography,
   };

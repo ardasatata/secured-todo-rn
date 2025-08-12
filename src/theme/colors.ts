@@ -56,6 +56,12 @@ export const colors = {
   todoCompleted: '#999999',
   todoEditing: '#F5F5F5',
   todoEditingBorder: '#000000',
+
+  checkboxChecked: '#000000',
+  checkboxUnchecked: '#000000',
+
+  switchThumb: '#FFFFFF',
+  switchTrack: '#000000',
 } as const;
 
 export type ColorName = keyof typeof colors;
